@@ -1,4 +1,4 @@
-# Tris
+# Tristan
 ***
 ### Current TODOs
 - [ ] Build out config file
