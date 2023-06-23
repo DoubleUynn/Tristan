@@ -9,6 +9,7 @@ import torch
 import config as cfg
 import struct
 import statistics as st
+from concurrent.futures import ProcessPoolExecutor as Pool
 
 cfg.suppress_ctrl_c()
 
@@ -25,14 +26,17 @@ def initialize():
         nes.step()
     return nes
 
-def run(mind_num, nes):
+def run(mind_num, initializer):
+    nes = initializer()
     brain = Brain() 
     brain.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, mind_num)))
 
     score = None
+    frames_survived = 0
+    actable = False
+    last_action = 0
     while not nes[0x0058] or nes[0x0058] == 20:
         nes.controller = 0
-
 
         # Inputs for neural network
         inputs = []
@@ -42,7 +46,8 @@ def run(mind_num, nes):
         current_speed = nes[0x0044]
         seed = nes[0x0017] << 8 | nes[0x0018]
         next_piece = nes[0x0019]
-        frame = nes[0x00B2] << 8 | nes[0x00B1]
+        frame_number = nes[0x00B2] << 8 | nes[0x00B1]
+        actable = not actable
 
         # One-liner to grab the board state
         board = [nes[0x0400 + i] for i in range(200)]
@@ -51,12 +56,18 @@ def run(mind_num, nes):
         board = list(map(lambda x: 1 if x & 0b00010000 else 0, board))
 
         inputs.extend(board)
-        inputs.extend([piece_x, piece_y, piece_id, current_speed, seed, next_piece, frame])
+        inputs.extend([piece_x, piece_y, piece_id, current_speed, seed, next_piece, frame_number, last_action])
 
         # Run neural network
-        outputs = brain.activate(inputs)
-        action = outputs.index(max(outputs))
-        nes.controller = actions[action]
+        if actable:
+            outputs = brain.activate(inputs)
+            action = outputs.index(max(outputs))
+            nes.controller = actions[action]
+            last_action = actions[action]
+        else:
+            nes.controller = 0
+            nes[0x00F5] = 0
+            nes[0x00F7] = 0
         
         # Get the current score
         # Score is stored in two bytes, binary coded digits, little endian
@@ -75,16 +86,21 @@ def run(mind_num, nes):
 
         score = int(str(score1) + str(score2) + str(score3) + str(score4) + str(score5) + str(score6))
         frame = nes.step()
+        nes.controller = 0
+        nes[0x00F5] = 0
+        nes[0x00F7] = 0
+        frames_survived += 1
     
-    fitness = ga.fitness(board, score)
+    fitness = ga.fitness(board, score, frames_survived)
     print('Brain: {}; fitness: {}'.format(mind_num, fitness))
     return fitness 
 
 def run_generation():
     scores = []
     for i in range(cfg.POPULATION_SIZE):
-        score = run(i, initialize())
+        score = run(i, initialize)
         scores.append(score)
+
     return scores
 
 def train():

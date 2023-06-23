@@ -100,14 +100,14 @@ def mating():
         second.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, it + 1)))
         counter = breeding(first, second, counter)
 
-def fitness(ending_board, score):
+def fitness(ending_board, score, time):
     ones = ending_board.count(1)
     zeros = ending_board.count(0)
     filled_density = ones / (ones + zeros)
     unfilled_density = zeros / (ones + zeros)
 
     # Calculate the fitness score
-    fitness = score - 10.5 * unfilled_density + 25.1 * filled_density
+    fitness = 3 * score - 2 * unfilled_density + 4 * filled_density + 0.25 * time
     return fitness
 
 # Here's a network that we could potentially use
@@ -115,12 +115,13 @@ class Brain(nn.Module):
     def __init__(self):
         super(Brain, self).__init__()
 
-        self.in_nodes = 207
+        self.in_nodes = 208
         self.hidden_nodes1 = 200 
         self.hidden_nodes2 = 175
         self.hidden_nodes3 = 150
         self.hidden_nodes4 = 100
         self.hidden_nodes5 = 75
+        self.hidden_nodes6 = 50
         self.out_nodes = 5
         
         self.net = nn.Sequential(nn.Linear(self.in_nodes, self.hidden_nodes1),
@@ -133,7 +134,9 @@ class Brain(nn.Module):
                                  nn.ReLU(),
                                  nn.Linear(self.hidden_nodes4, self.hidden_nodes5),
                                  nn.ReLU(),
-                                 nn.Linear(self.hidden_nodes5, self.out_nodes),
+                                 nn.Linear(self.hidden_nodes5, self.hidden_nodes6),
+                                 nn.ReLU(),
+                                 nn.Linear(self.hidden_nodes6, self.out_nodes),
                                  nn.ReLU())
 
     def activate(self, inputs):
@@ -142,3 +145,11 @@ class Brain(nn.Module):
         net_product = self.net(inputs).tolist()
 
         return net_product
+
+    def get_weights(self):
+        weights = []
+        for i in self.net:
+            if not isinstance(i, torch.nn.modules.activation.ReLU):
+                weights.append(i.weight)
+
+        return weights

@@ -15,25 +15,26 @@ cfg.suppress_ctrl_c()
 actions = [NES_INPUT_A, NES_INPUT_B, NES_INPUT_DOWN, NES_INPUT_LEFT, NES_INPUT_RIGHT]
 action_labels = ['A', 'B', 'Down', 'Left', 'Right']
 
-nes = NES("roms/tetris.nes")
-
 def initialize():
+    nes = NESHeadless("roms/tetris.nes")
+    nes.reset()
     while not nes[0x0048] or (nes[0x0058] and (nes[0x0048] == 10)):
         for i in range(4):
-            nes.controller = NES_INPUT_START
-            nes.step(frames=20)
-            nes.controller = 0
+            for i in range(4):
+                nes.controller = NES_INPUT_START
+                nes.step(frames=20)
+                nes.controller = 0
         nes.step()
     return nes
 
-def run(mind_num, nes):
+def run(mind_num, initializer):
+    nes = initializer()
     brain = Brain() 
-    mind_num = int(mind_num)
     brain.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, mind_num)))
-    print(brain.get_weights())
 
     score = None
     frames_survived = 0
+    last_action = 0
     actable = False
     last_action = 0
     while not nes[0x0058] or nes[0x0058] == 20:
@@ -65,7 +66,7 @@ def run(mind_num, nes):
             action = outputs.index(max(outputs))
             nes.controller = actions[action]
             last_action = actions[action]
-    #        print(f'Action: {action_labels[action]}')
+            print(f'Action: {action_labels[action]}')
 
         else:
             nes.controller = 0
@@ -95,6 +96,9 @@ def run(mind_num, nes):
         nes[0x00F7] = 0
         frames_survived += 1
     
+    print(f'Ending board {board}')
+    print(f'Score: {score}')
+    print(f'Frames survived: {frames_survived}')
     return ga.fitness(board, score, frames_survived)
 
 def run_generation():
@@ -105,8 +109,10 @@ def run_generation():
     return scores
 
 def run_brain(mind_num):
-    score = run(mind_num, initialize())
+    score = run(mind_num, initialize)
     return(score)
 
 if __name__ == "__main__":
-    print(run_brain(19))
+    mind_num = input("Enter the brain number to run: ")
+    scores = run_brain(mind_num)
+    print(scores)

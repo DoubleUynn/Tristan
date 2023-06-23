@@ -31,7 +31,11 @@ def run(mind_num, nes):
     brain.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, mind_num)))
 
     score = None
+    frames_survived = 0
+    actable = False
+    last_action = 0
     while not nes[0x0058] or nes[0x0058] == 20:
+        nes.controller = 0
 
         # Inputs for neural network
         inputs = []
@@ -41,7 +45,8 @@ def run(mind_num, nes):
         current_speed = nes[0x0044]
         seed = nes[0x0017] << 8 | nes[0x0018]
         next_piece = nes[0x0019]
-        frame = nes[0x00B2] << 8 | nes[0x00B1]
+        frame_number = nes[0x00B2] << 8 | nes[0x00B1]
+        actable = not actable
 
         # One-liner to grab the board state
         board = [nes[0x0400 + i] for i in range(200)]
@@ -50,13 +55,19 @@ def run(mind_num, nes):
         board = list(map(lambda x: 1 if x & 0b00010000 else 0, board))
 
         inputs.extend(board)
-        inputs.extend([piece_x, piece_y, piece_id, current_speed, seed, next_piece, frame])
+        inputs.extend([piece_x, piece_y, piece_id, current_speed, seed, next_piece, frame_number, last_action])
 
         # Run neural network
-        outputs = brain.activate(inputs)
-        action = outputs.index(max(outputs))
-        print('Action:', action_labels[action])
-        nes.controller = actions[action]
+        # Only act on every other frame, idk if this fixes the inputs or not
+        if actable:
+            outputs = brain.activate(inputs)
+            action = outputs.index(max(outputs))
+            nes.controller = actions[action]
+            last_action = actions[action]
+        else:
+            nes.controller = 0
+            nes[0x00F5] = 0
+            nes[0x00F7] = 0
 
         # Get the current score
         # Score is stored in two bytes, binary coded digits, little endian
@@ -78,9 +89,10 @@ def run(mind_num, nes):
         nes.controller = 0
         nes[0x00F5] = 0
         nes[0x00F7] = 0
-        fram = nes.step()
+        frames_survived += 1
     
-    fitness = ga.fitness(board, score)
+    fitness = ga.fitness(board, score, frames_survived)
+    print(f'Brain: {mind_num}; fitness: {fitness}')
     return fitness 
 
 def run_generation():
