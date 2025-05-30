@@ -10,6 +10,7 @@ import torch
 import config as cfg
 import struct
 import statistics as st
+import concurrent.futures
 from concurrent.futures import ProcessPoolExecutor as Pool
 import multiprocessing
 
@@ -33,7 +34,11 @@ def run(mind_num, initializer):
     # Each process gets its own NES instance
     nes = initializer()
     brain = Brain() 
-    brain.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, mind_num)))
+    try:
+        brain.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, mind_num)))
+    except Exception as e:
+        print(f"Error loading brain {mind_num}: {e}")
+        return 0
 
     score = None
     frames_survived = 0
@@ -149,15 +154,23 @@ def run_generation():
         # Submit all tasks
         future_to_brain = {executor.submit(run, i, initialize): i for i in range(cfg.POPULATION_SIZE)}
         
-        # Get results as they complete
+        # Get results as they complete with a timeout
         for future in future_to_brain:
             brain_index = future_to_brain[future]
             try:
-                scores[brain_index] = future.result()
+                # Add a timeout to prevent hanging (300 seconds = 5 minutes per brain)
+                scores[brain_index] = future.result(timeout=300)
+            except concurrent.futures.TimeoutError:
+                print(f'Brain {brain_index} timed out after 300 seconds')
+                scores[brain_index] = 0
             except Exception as exc:
                 print(f'Brain {brain_index} generated an exception: {exc}')
                 scores[brain_index] = 0
 
+    # Force garbage collection to clean up resources
+    import gc
+    gc.collect()
+    
     return scores
 
 def train():
