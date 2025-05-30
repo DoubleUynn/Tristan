@@ -55,6 +55,7 @@ def run(mind_num, initializer):
         # Change the board to 1s and 0s
         board = list(map(lambda x: 1 if x & 0b00010000 else 0, board))
 
+        # TODO: Input piece onto board
         inputs.extend(board)
         inputs.extend([piece_x, piece_y, piece_id, current_speed, seed, next_piece, frame_number, last_action])
 

@@ -16,7 +16,7 @@ actions = [NES_INPUT_A, NES_INPUT_B, NES_INPUT_DOWN, NES_INPUT_LEFT, NES_INPUT_R
 action_labels = ['A', 'B', 'Down', 'Left', 'Right']
 
 def initialize():
-    nes = NESHeadless("roms/tetris.nes")
+    nes = NES("roms/tetris.nes")
     nes.reset()
     while not nes[0x0048] or (nes[0x0058] and (nes[0x0048] == 10)):
         for i in range(4):

@@ -1,5 +1,7 @@
 from cynes import * 
 import os
+from cynes.windowed import WindowedNES
+import os
 import time
 import random
 from itertools import chain
@@ -15,7 +17,7 @@ cfg.suppress_ctrl_c()
 actions = [NES_INPUT_A, NES_INPUT_B, NES_INPUT_DOWN, NES_INPUT_LEFT, NES_INPUT_RIGHT]
 action_labels = ['A', 'B', 'Down', 'Left', 'Right']
 
-nes = NES("roms/tetris.nes")
+nes = WindowedNES("roms/tetris.nes")
 
 def initialize():
     while not nes[0x0048] or (nes[0x0058] and (nes[0x0048] == 10)):
@@ -30,7 +32,6 @@ def run(mind_num, nes):
     brain = Brain() 
     mind_num = int(mind_num)
     brain.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, mind_num)))
-    print(brain.get_weights())
 
     score = None
     frames_survived = 0
@@ -65,7 +66,7 @@ def run(mind_num, nes):
             action = outputs.index(max(outputs))
             nes.controller = actions[action]
             last_action = actions[action]
-    #        print(f'Action: {action_labels[action]}')
+            #print(f'Action: {action_labels[action]}')
 
         else:
             nes.controller = 0
@@ -109,4 +110,4 @@ def run_brain(mind_num):
     return(score)
 
 if __name__ == "__main__":
-    print(run_brain(19))
+    print(run_brain(22))

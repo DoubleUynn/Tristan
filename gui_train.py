@@ -1,3 +1,4 @@
+from cynes.windowed import WindowedNES
 from cynes import * 
 import os
 import time
@@ -11,19 +12,21 @@ import struct
 import statistics as st
 
 cfg.suppress_ctrl_c()
-nes = NES("roms/tetris.nes")
+nes = WindowedNES("roms/tetris.nes")
 
 # Global variables
 actions = [NES_INPUT_A, NES_INPUT_B, NES_INPUT_DOWN, NES_INPUT_LEFT, NES_INPUT_RIGHT]
 action_labels = ['A', 'B', 'Down', 'Left', 'Right']
 
 def initialize():
+    print("initializing...")
     while not nes[0x0048] or (nes[0x0058] and (nes[0x0048] == 10)):
         for i in range(4):
             nes.controller = NES_INPUT_START
             nes.step(frames=20)
             nes.controller = 0
         nes.step()
+    print("initialized.")
     return nes
 
 def run(mind_num, nes):
@@ -60,6 +63,7 @@ def run(mind_num, nes):
         # Run neural network
         # Only act on every other frame, idk if this fixes the inputs or not
         if actable:
+            # TODO: Softmax outputs
             outputs = brain.activate(inputs)
             action = outputs.index(max(outputs))
             nes.controller = actions[action]

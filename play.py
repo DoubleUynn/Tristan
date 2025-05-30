@@ -1,4 +1,5 @@
-from cynes import * 
+from cynes.windowed import WindowedNES
+from cynes import * # needed for the constants for NES_INPUT_*
 import os
 import time
 import random
@@ -10,7 +11,7 @@ import config as cfg
 import struct
 
 cfg.suppress_ctrl_c()
-nes = NES("roms/tetris.nes")
+nes = WindowedNES("roms/tetris.nes")
 
 # Global variables
 actions = [NES_INPUT_A, NES_INPUT_B, NES_INPUT_DOWN, NES_INPUT_LEFT, NES_INPUT_RIGHT]
@@ -29,6 +30,15 @@ def play(nes):
         # Get the current score
         # Score is stored in two bytes, binary coded digits, little endian
         # This is how I convert it to an integer, but there is likely a better way
+        inputs = []
+        piece_x = nes[0x0040]
+        piece_y = nes[0x0041]
+        piece_id = nes[0x0042]
+        current_speed = nes[0x0044]
+        seed = nes[0x0017] << 8 | nes[0x0018]
+        next_piece = nes[0x0019]
+        frame_number = nes[0x00B2] << 8 | nes[0x00B1]
+
         byte1 = nes[0x0055].to_bytes(1, 'little')
         score2 = byte1[0] & 0b00001111
         score1 = byte1[0] >> 4 & 0b00001111
@@ -42,9 +52,24 @@ def play(nes):
         score5 = byte3[0] >> 4 & 0b00001111
 
         score = int(str(score1) + str(score2) + str(score3) + str(score4) + str(score5) + str(score6))
-        print(nes.controller)
+        
+        for i, block in enumerate(board):
+            if block:
+                print("X", end="")
+            else:
+                print(" ", end="")
+            if i % 10 == 1:
+                print("")
+
+        print("Piece ID:", piece_id, "Next:", next_piece)
+        print(next_piece)
+
+        time.sleep(0.017)
+        os.system("clear")
+
         frame = nes.step()
     
     fitness = ga.fitness(board, score)
     return fitness 
-print(play(nes))
+
+play(nes)
