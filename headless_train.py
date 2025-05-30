@@ -167,6 +167,7 @@ def train():
     best_average_epoch = 0
 
     for epoch in range(cfg.EPOCHS):
+
         start_time = time.time()
         scores = run_generation()
         epoch_time = time.time() - start_time
@@ -181,9 +182,24 @@ def train():
         
         print(f'Epoch: {epoch + 1} - Best epoch: {best_epoch} - Best average epoch: {best_average_epoch}')
         print(f'Epoch completed in {epoch_time:.2f} seconds')
+
+        print('Sorting by best scores...')
+        start_time = time.time()
         best = ga.sort_best(scores)
+        sort_time = time.time() - start_time()
+        print(f'Sorted by best scores in {sort_time:.2f}')
+
+        print('Saving best models...')
+        start_time = time.time()
         ga.save_best(best)
+        save_time = time.time() - start_time()
+        print(f'Saved best models in {save_time:.2f}')
+        
+        print('Creating next generation...')
+        start_time = time.time()
         ga.mating()
+        creation_time = time.time() - start_time()
+        print(f'Created new models in {creation_time:.2f}')
 
 if __name__ == "__main__":
     # Ensure minds directory exists
