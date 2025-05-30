@@ -1,3 +1,4 @@
+from piece_maps import piece_maps
 from cynes import * 
 import os
 import time
@@ -10,14 +11,16 @@ import config as cfg
 import struct
 import statistics as st
 from concurrent.futures import ProcessPoolExecutor as Pool
+import multiprocessing
 
 cfg.suppress_ctrl_c()
 
 # Global variables
 actions = [NES_INPUT_A, NES_INPUT_B, NES_INPUT_DOWN, NES_INPUT_LEFT, NES_INPUT_RIGHT]
-nes = NESHeadless("roms/tetris.nes")
 
 def initialize():
+    # Create a new NES instance for each process
+    nes = NES("roms/tetris.nes")
     while not nes[0x0048] or (nes[0x0058] and (nes[0x0048] == 10)):
         for i in range(4):
             nes.controller = NES_INPUT_START
@@ -27,6 +30,7 @@ def initialize():
     return nes
 
 def run(mind_num, initializer):
+    # Each process gets its own NES instance
     nes = initializer()
     brain = Brain() 
     brain.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, mind_num)))
@@ -130,10 +134,29 @@ def run(mind_num, initializer):
     return fitness 
 
 def run_generation():
-    scores = []
-    for i in range(cfg.POPULATION_SIZE):
-        score = run(i, initialize)
-        scores.append(score)
+    scores = [0] * cfg.POPULATION_SIZE
+    
+    # Determine the number of workers to use
+    if cfg.MAX_WORKERS <= 0:
+        num_workers = min(multiprocessing.cpu_count(), cfg.POPULATION_SIZE)
+    else:
+        num_workers = min(cfg.MAX_WORKERS, cfg.POPULATION_SIZE)
+        
+    print(f"Using {num_workers} workers for parallel training")
+    
+    # Create a process pool and run the brains in parallel
+    with Pool(max_workers=num_workers) as executor:
+        # Submit all tasks
+        future_to_brain = {executor.submit(run, i, initialize): i for i in range(cfg.POPULATION_SIZE)}
+        
+        # Get results as they complete
+        for future in future_to_brain:
+            brain_index = future_to_brain[future]
+            try:
+                scores[brain_index] = future.result()
+            except Exception as exc:
+                print(f'Brain {brain_index} generated an exception: {exc}')
+                scores[brain_index] = 0
 
     return scores
 
@@ -144,7 +167,10 @@ def train():
     best_average_epoch = 0
 
     for epoch in range(cfg.EPOCHS):
+        start_time = time.time()
         scores = run_generation()
+        epoch_time = time.time() - start_time
+        
         if max(scores) > best_score:
             best_score = round(max(scores), 3)
             best_epoch = epoch + 1
@@ -153,7 +179,25 @@ def train():
             best_average = round(st.mean(scores), 3)
             best_average_epoch = epoch + 1
         
-        print('Epoch: {} - Best epoch: {} - Best average epoch: {}'.format(epoch + 1, best_epoch, best_average_epoch))
+        print(f'Epoch: {epoch + 1} - Best epoch: {best_epoch} - Best average epoch: {best_average_epoch}')
+        print(f'Epoch completed in {epoch_time:.2f} seconds')
         best = ga.sort_best(scores)
         ga.save_best(best)
         ga.mating()
+
+if __name__ == "__main__":
+    # Ensure minds directory exists
+    if not os.path.exists(cfg.MINDS_DIR):
+        os.makedirs(cfg.MINDS_DIR)
+        
+    # Initialize random brains if needed
+    if len(os.listdir(cfg.MINDS_DIR)) < cfg.POPULATION_SIZE:
+        print("Initializing random brains...")
+        for i in range(cfg.POPULATION_SIZE):
+            brain = Brain()
+            torch.save(brain.state_dict(), f'{cfg.MINDS_DIR}/{i}.pt')
+    
+    # Start training
+    print(f"Starting multi-threaded training with population size: {cfg.POPULATION_SIZE}")
+    print(f"Available CPU cores: {multiprocessing.cpu_count()}")
+    train()
