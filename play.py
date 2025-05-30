@@ -1,5 +1,6 @@
 from cynes.windowed import WindowedNES
 from cynes import * # needed for the constants for NES_INPUT_*
+from piece_maps import piece_maps
 import os
 import time
 import random
@@ -34,6 +35,19 @@ def play(nes):
         piece_x = nes[0x0040]
         piece_y = nes[0x0041]
         piece_id = nes[0x0042]
+        # Superimpose the current piece onto the board
+        if piece_id in piece_maps:
+            piece_shape = piece_maps[piece_id]
+            for y_offset, row in enumerate(piece_shape):
+                for x_offset, cell in enumerate(row):
+                    if cell:
+                        board_x = piece_x + x_offset
+                        board_y = piece_y + y_offset
+                        if 0 <= board_x < 10 and 0 <= board_y < 20:
+                            board_index = board_y * 10 + board_x
+                            if board_index < len(board):
+                                board[board_index] = 1
+        
         current_speed = nes[0x0044]
         seed = nes[0x0017] << 8 | nes[0x0018]
         next_piece = nes[0x0019]
@@ -54,17 +68,20 @@ def play(nes):
         score = int(str(score1) + str(score2) + str(score3) + str(score4) + str(score5) + str(score6))
         
         for i, block in enumerate(board):
+            if i % 10 == 0:
+                print("▒", end="")
             if block:
-                print("X", end="")
+                print("█", end="")
             else:
                 print(" ", end="")
-            if i % 10 == 1:
-                print("")
+            if (i + 1) % 10 == 0:
+                print("▒")
 
-        print("Piece ID:", piece_id, "Next:", next_piece)
-        print(next_piece)
+        print("")
 
-        time.sleep(0.017)
+        print("Piece X:", piece_x, "Piece Y:", piece_y)
+
+        time.sleep(0.027)
         os.system("clear")
 
         frame = nes.step()
