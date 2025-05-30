@@ -1,3 +1,4 @@
+from piece_maps import piece_maps
 from cynes.windowed import WindowedNES
 from cynes import * 
 import os
@@ -37,6 +38,7 @@ def run(mind_num, nes):
     frames_survived = 0
     actable = False
     last_action = 0
+    last_board = [0] * 200
     while not nes[0x0058] or nes[0x0058] == 20:
         nes.controller = 0
 
@@ -57,17 +59,49 @@ def run(mind_num, nes):
         # Change the board to 1s and 0s
         board = list(map(lambda x: 1 if x & 0b00010000 else 0, board))
 
+        # Superimpose the current piece onto the board
+        if piece_id in piece_maps:
+            piece_shape = piece_maps[piece_id]
+            for y_offset, row in enumerate(piece_shape):
+                for x_offset, cell in enumerate(row):
+                    if cell:
+                        board_x = piece_x + x_offset - 2
+                        board_y = piece_y + y_offset - 2
+                        if 0 <= board_x < 10 and 0 <= board_y < 20:
+                            board_index = board_y * 10 + board_x
+                            if board_index < len(board):
+                                board[board_index] = 1
+
         inputs.extend(board)
-        inputs.extend([piece_x, piece_y, piece_id, current_speed, seed, next_piece, frame_number, last_action])
+
+        next_piece_is = [0, 0, 0, 0, 0, 0, 0]
+        if next_piece == 2:
+            next_piece_is[0] = 1
+        if next_piece == 7:
+            next_piece_is[1] = 1
+        if next_piece == 8:
+            next_piece_is[2] = 1
+        if next_piece == 10:
+            next_piece_is[3] = 1
+        if next_piece == 11:
+            next_piece_is[0] = 1
+        if next_piece == 14:
+            next_piece_is[0] = 1
+        if next_piece == 18:
+            next_piece_is[0] = 1
+
+        inputs.extend(next_piece_is)
+        
+        inputs.extend(last_board)
 
         # Run neural network
         # Only act on every other frame, idk if this fixes the inputs or not
         if actable:
-            # TODO: Softmax outputs
             outputs = brain.activate(inputs)
             action = outputs.index(max(outputs))
             nes.controller = actions[action]
             last_action = actions[action]
+            last_board = board
         else:
             nes.controller = 0
             nes[0x00F5] = 0

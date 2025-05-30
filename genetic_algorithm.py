@@ -115,9 +115,9 @@ class Brain(nn.Module):
     def __init__(self):
         super(Brain, self).__init__()
 
-        self.in_nodes = 208
-        self.hidden_nodes1 = 200 
-        self.hidden_nodes2 = 175
+        self.in_nodes = 407
+        self.hidden_nodes1 = 300 
+        self.hidden_nodes2 = 255
         self.hidden_nodes3 = 150
         self.hidden_nodes4 = 100
         self.hidden_nodes5 = 75

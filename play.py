@@ -35,6 +35,7 @@ def play(nes):
         piece_x = nes[0x0040]
         piece_y = nes[0x0041]
         piece_id = nes[0x0042]
+
         # Superimpose the current piece onto the board
         if piece_id in piece_maps:
             piece_shape = piece_maps[piece_id]
