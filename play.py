@@ -41,8 +41,8 @@ def play(nes):
             for y_offset, row in enumerate(piece_shape):
                 for x_offset, cell in enumerate(row):
                     if cell:
-                        board_x = piece_x + x_offset
-                        board_y = piece_y + y_offset
+                        board_x = piece_x + x_offset - 2
+                        board_y = piece_y + y_offset - 2
                         if 0 <= board_x < 10 and 0 <= board_y < 20:
                             board_index = board_y * 10 + board_x
                             if board_index < len(board):
