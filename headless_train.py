@@ -186,19 +186,19 @@ def train():
         print('Sorting by best scores...')
         start_time = time.time()
         best = ga.sort_best(scores)
-        sort_time = time.time() - start_time()
+        sort_time = time.time() - start_time
         print(f'Sorted by best scores in {sort_time:.2f}')
 
         print('Saving best models...')
         start_time = time.time()
         ga.save_best(best)
-        save_time = time.time() - start_time()
+        save_time = time.time() - start_time
         print(f'Saved best models in {save_time:.2f}')
         
         print('Creating next generation...')
         start_time = time.time()
         ga.mating()
-        creation_time = time.time() - start_time()
+        creation_time = time.time() - start_time
         print(f'Created new models in {creation_time:.2f}')
 
 if __name__ == "__main__":
