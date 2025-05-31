@@ -155,17 +155,23 @@ def run_generation():
         future_to_brain = {executor.submit(run, i, initialize): i for i in range(cfg.POPULATION_SIZE)}
         
         # Get results as they complete with a timeout
-        for future in future_to_brain:
+        for future in concurrent.futures.as_completed(future_to_brain):
             brain_index = future_to_brain[future]
             try:
                 # Add a timeout to prevent hanging (300 seconds = 5 minutes per brain)
                 scores[brain_index] = future.result(timeout=300)
+                # Cancel the future to terminate the process after successful completion
+                future.cancel()
             except concurrent.futures.TimeoutError:
                 print(f'Brain {brain_index} timed out after 300 seconds')
                 scores[brain_index] = 0
+                # Cancel the future to terminate the process
+                future.cancel()
             except Exception as exc:
                 print(f'Brain {brain_index} generated an exception: {exc}')
                 scores[brain_index] = 0
+                # Cancel the future to terminate the process
+                future.cancel()
 
     # Force garbage collection to clean up resources
     import gc
