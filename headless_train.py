@@ -192,8 +192,8 @@ def run_generation():
             except Exception as e:
                 print(f"Brain {brain_index} generated and exception: {e}")
 
-        print("Shutting down executor...")
-        executor.shutdown(wait=False, cancel_futures=True)
+        #print("Shutting down executor...")
+        #executor.shutdown(wait=False, cancel_futures=True)
 
     # Kill any remaining zombie processes
     print("Cleaning up any remaining processes...")
