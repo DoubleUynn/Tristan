@@ -16,23 +16,6 @@ import concurrent.futures
 from concurrent.futures import ProcessPoolExecutor as Pool
 import multiprocessing
 
-import multiprocessing.resource_tracker # Disable resource_tracker for errors
-
-def dummy_main(fd, pid):
-    pass
-
-multiprocessing.resource_tracker.main = dummy_main
-
-class DummyResourceTracker:
-    def register(self, *args, **kwargs):
-        pass
-    def unregister(self, *args, **kwargs):
-        pass
-    def ensure_running(self):
-        pass
-
-multiprocessing.resource_tracker._resource_tracker = DummyResourceTracker()
-
 cfg.suppress_ctrl_c()
 
 # Global variables
@@ -206,10 +189,6 @@ def run_generation():
                 pass
     except:
         pass
-
-    # Force garbage collection to clean up resources
-    import gc
-    gc.collect()
     
     return scores
 
