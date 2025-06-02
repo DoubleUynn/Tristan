@@ -17,7 +17,15 @@ from concurrent.futures import ProcessPoolExecutor as Pool
 import multiprocessing
 
 import multiprocessing.resource_tracker # Disable resource_tracker for errors
-multiprocessing.resource_tracker._resource_tracker._fd = None
+original_unregister = multiprocessing.resource_tracker._resource_tracker.unregister
+
+def patched_unregister(name, rtype):
+    try:
+        original_unregister(name, rtype)
+    except KeyError:
+        pass
+
+multiprocessing.resource_tracker._resource_tracker.unregister = patched_unregister
 
 cfg.suppress_ctrl_c()
 
