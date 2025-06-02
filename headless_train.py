@@ -191,7 +191,7 @@ def run_generation():
             except concurrent.futures.TimeoutError:
                 print(f"Brain {brain_index} timed out after 120 seconds")
                 scores[brain_index] = 0
-            except Execption as e:
+            except Exception as e:
                 print(f"Brain {brain_index} generated and exception: {e}")
             finally:
                 kill_process_tree(process_pids[future])
