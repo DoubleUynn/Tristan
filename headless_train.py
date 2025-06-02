@@ -219,6 +219,7 @@ def train():
         best = ga.sort_best(scores)
         sort_time = time.time() - start_time
         print(f'Sorted by best scores in {sort_time:.2f}')
+        print(f'Best score: {best[0]}')
 
         print('Saving best models...')
         start_time = time.time()
