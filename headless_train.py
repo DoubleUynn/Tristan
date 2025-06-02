@@ -1,3 +1,5 @@
+import psutil
+import signal
 from piece_maps import piece_maps
 from cynes import * 
 import os
@@ -138,6 +140,23 @@ def run(mind_num, initializer):
     print('Brain: {}; fitness: {}'.format(mind_num, fitness))
     return fitness 
 
+def kill_process_tree(pid):
+    try:
+        parent = psutil.Process(pid)
+        children = parent.children(recursive=True)
+        for child in children:
+            try:
+                child.kill()
+            except Exception as e: # This would happen if the process doesn't exist but also in other instances
+                print(f"Error killing child: {e}")
+        try:
+            parent.kill()
+        except Exception as e:
+            print(f"Error killing parent: {e}")
+    except Exception as e:
+        print(f"Couldn't find process: {e}")
+
+
 def run_generation():
     scores = [0] * cfg.POPULATION_SIZE
     
@@ -150,28 +169,51 @@ def run_generation():
     print(f"Using {num_workers} workers for parallel training")
     
     # Create a process pool and run the brains in parallel
-    with Pool(max_workers=num_workers) as executor:
+    with Pool(max_workers=num_workers, mp_context=multiprocessing.get_context('spawn')) as executor:
         # Submit all tasks
         future_to_brain = {executor.submit(run, i, initialize): i for i in range(cfg.POPULATION_SIZE)}
+        process_pids = {}
         
         # Get results as they complete with a timeout
-        for future in concurrent.futures.as_completed(future_to_brain):
+        for i in range(cfg.POPULATION_SIZE):
+            future = executor.submit(run, i, initialize)
+            future_to_brain[future] = i
+            process_pids[future] = future._process.pid
+
+        completed_futures = set()
+        for future in concurrent.futures.as_completed(future_to_brain, timeout=600):
+            if future in completed_futures:
+                continue
+            completed_futures.add(future)
             brain_index = future_to_brain[future]
+            
             try:
-                # Add a timeout to prevent hanging (300 seconds = 5 minutes per brain)
-                scores[brain_index] = future.result(timeout=300)
-                # Cancel the future to terminate the process after successful completion
-                future.cancel()
+                scores[brain_index] = future.result(timeout=120)
             except concurrent.futures.TimeoutError:
-                print(f'Brain {brain_index} timed out after 300 seconds')
+                print(f"Brain {brain_index} timed out after 120 seconds")
                 scores[brain_index] = 0
-                # Cancel the future to terminate the process
-                future.cancel()
-            except Exception as exc:
-                print(f'Brain {brain_index} generated an exception: {exc}')
-                scores[brain_index] = 0
-                # Cancel the future to terminate the process
-                future.cancel()
+            except Execption as e:
+                print(f"Brain {brain_index} generated and exception: {e}")
+            finally:
+                kill_process_tree(process_pids[future])
+
+        print("Shutting down executor...")
+        executor.shutdown(wait=False, cancel_futures=True)
+
+        # Kill any remaining zombie processes
+    print("Cleaning up any remaining processes...")
+    try:
+        current_process = psutil.Process()
+        children = current_process.children(recursive=True)
+        for child in children:
+            try:
+                if 'python' in child.name().lower():
+                    child.kill()
+
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+    except:
+        pass
 
     # Force garbage collection to clean up resources
     import gc
