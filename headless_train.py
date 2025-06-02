@@ -16,6 +16,9 @@ import concurrent.futures
 from concurrent.futures import ProcessPoolExecutor as Pool
 import multiprocessing
 
+import multiprocessing.resource_tracker # Disable resource_tracker for errors
+multiprocessing.resource_tracker._resource_tracker._fd = None
+
 cfg.suppress_ctrl_c()
 
 # Global variables
