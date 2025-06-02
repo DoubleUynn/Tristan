@@ -12,7 +12,7 @@ PARENTS_SIZE = 8
 MUTATION_RATE = 100
 MUTATION_FREQUENCY = 70
 CROSSING_PROBABILITY = 30
-EPOCHS = 500
+EPOCHS = 50
 
 # Multi-threading configuration
 # Set to 0 to automatically use all available CPU cores
