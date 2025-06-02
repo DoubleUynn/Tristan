@@ -138,7 +138,7 @@ def run(mind_num, initializer):
     
     fitness = ga.fitness(board, score, frames_survived)
     print('Brain: {}; fitness: {}'.format(mind_num, fitness))
-    return fitness 
+    return fitness, os.getpid()
 
 def kill_process_tree(pid):
     try:
@@ -178,7 +178,6 @@ def run_generation():
         for i in range(cfg.POPULATION_SIZE):
             future = executor.submit(run, i, initialize)
             future_to_brain[future] = i
-            process_pids[future] = future._process.pid
 
         completed_futures = set()
         for future in concurrent.futures.as_completed(future_to_brain, timeout=600):
@@ -188,7 +187,7 @@ def run_generation():
             brain_index = future_to_brain[future]
             
             try:
-                scores[brain_index] = future.result(timeout=120)
+                scores[brain_index], process_pids[future] = future.result(timeout=120)
             except concurrent.futures.TimeoutError:
                 print(f"Brain {brain_index} timed out after 120 seconds")
                 scores[brain_index] = 0
