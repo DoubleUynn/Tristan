@@ -17,15 +17,11 @@ from concurrent.futures import ProcessPoolExecutor as Pool
 import multiprocessing
 
 import multiprocessing.resource_tracker # Disable resource_tracker for errors
-original_unregister = multiprocessing.resource_tracker._resource_tracker.unregister
 
-def patched_unregister(name, rtype):
-    try:
-        original_unregister(name, rtype)
-    except KeyError:
-        pass
+def dummy_main(fd, pid):
+    pass
 
-multiprocessing.resource_tracker._resource_tracker.unregister = patched_unregister
+multiprocessing.resource_tracker.main = dummy_main
 
 cfg.suppress_ctrl_c()
 
