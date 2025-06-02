@@ -171,7 +171,8 @@ def run_generation():
     warnings.filterwarnings("ignore", category=UserWarning, module="multiprocessing.resource_tracker")
     # Create a process pool and run the brains in parallel
     with Pool(max_workers=num_workers, mp_context=multiprocessing.get_context('spawn')) as executor:
-        
+        future_to_brain = {}
+
         for i in range(cfg.POPULATION_SIZE):
             future = executor.submit(run, i, initialize)
             future_to_brain[future] = i
