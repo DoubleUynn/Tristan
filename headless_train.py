@@ -167,7 +167,8 @@ def run_generation():
         num_workers = min(cfg.MAX_WORKERS, cfg.POPULATION_SIZE)
         
     print(f"Using {num_workers} workers for parallel training")
-    
+    import warnings # Remove warnings from multiprocessing so that output is cleaner
+    warnings.filterwarnings("ignore", category=UserWarning, module="multiprocessing.resource_tracker")
     # Create a process pool and run the brains in parallel
     with Pool(max_workers=num_workers, mp_context=multiprocessing.get_context('spawn')) as executor:
         # Submit all tasks
