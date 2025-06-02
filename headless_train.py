@@ -23,6 +23,16 @@ def dummy_main(fd, pid):
 
 multiprocessing.resource_tracker.main = dummy_main
 
+class DummyResourceTracker:
+    def register(self, *args, **kwargs):
+        pass
+    def unregister(self, *args, **kwargs):
+        pass
+    def ensure_running(self):
+        pass
+
+multiprocessing.resource_tracker._resource_tracker = DummyResourceTracker()
+
 cfg.suppress_ctrl_c()
 
 # Global variables
@@ -147,23 +157,6 @@ def run(mind_num, initializer):
     print('Brain: {}; fitness: {}'.format(mind_num, fitness))
     return fitness
 
-def kill_process_tree(pid):
-    try:
-        parent = psutil.Process(pid)
-        children = parent.children(recursive=True)
-        for child in children:
-            try:
-                child.kill()
-            except Exception as e: # This would happen if the process doesn't exist but also in other instances
-                print(f"Error killing child: {e}")
-        try:
-            parent.kill()
-        except Exception as e:
-            print(f"Error killing parent: {e}")
-    except Exception as e:
-        print(f"Couldn't find process: {e}")
-
-
 def run_generation():
     scores = [0] * cfg.POPULATION_SIZE
     
@@ -204,7 +197,7 @@ def run_generation():
         print("Shutting down executor...")
         executor.shutdown(wait=False, cancel_futures=True)
 
-        # Kill any remaining zombie processes
+    # Kill any remaining zombie processes
     print("Cleaning up any remaining processes...")
     try:
         current_process = psutil.Process()
