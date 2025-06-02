@@ -202,7 +202,7 @@ def train():
         start_time = time.time()
         scores = run_generation()
         epoch_time = time.time() - start_time
-        
+
         if max(scores) > best_score:
             best_score = round(max(scores), 3)
             best_epoch = epoch + 1
@@ -210,6 +210,9 @@ def train():
         if st.mean(scores) > best_average:
             best_average = round(st.mean(scores), 3)
             best_average_epoch = epoch + 1
+
+        print(f'Best score: {max(scores)}')
+        print(f'Average score: {st.mean(scores):.2f}')
         
         print(f'Epoch: {epoch + 1} - Best epoch: {best_epoch} - Best average epoch: {best_average_epoch}')
         print(f'Epoch completed in {epoch_time:.2f} seconds')
@@ -219,8 +222,6 @@ def train():
         best = ga.sort_best(scores)
         sort_time = time.time() - start_time
         print(f'Sorted by best scores in {sort_time:.2f}')
-        print(f'Best score: {max(scores)}')
-        print(f'Average score: {st.mean(scores):.2f}')
 
         print('Saving best models...')
         start_time = time.time()
