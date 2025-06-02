@@ -5,6 +5,7 @@ import numpy as np
 import config as cfg
 import numpy as np
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def sort_best(score_array):
     best_scores = [0] * cfg.PARENTS_SIZE
@@ -25,54 +26,37 @@ def save_best(list_of_bests):
 
 def crossing_over(first_parent, second_parent):
 
-    child = Brain()
-    for layer_name, _ in child.named_parameters():
-        child_params = child.state_dict()[layer_name]
-        first_params = first_parent.state_dict()[layer_name]
-        second_params = second_parent.state_dict()[layer_name]
-        for tensor in range(len(child_params)):
-            try:
-                for value in range(len(child_params[tensor])):
-                    probability = randint(1, 100)
-                    if probability <= cfg.CROSSING_PROBABILITY:
-                        child_params[tensor][value] = second_params[tensor][value]
-                    else:
-                        child_params[tensor][value] = first_params[tensor][value]
+    child = Brain().to(device)
+    
+    with torch.no_grad():
+        for layer_name in child.state_dict():
+            first_params = first_parent.state_dict()[layer_name].to(device)
+            second_params = first_parent.state_dict()[layer_name].to(device)
 
-            except TypeError:
-                probability = randint(1, 100)
-                if probability <= cfg.CROSSING_PROBABILITY:
-                    child_params[tensor] = second_params[tensor]
-                else:
-                    child_params[tensor] = first_params[tensor]
+            crossover_prob = torch.rand_like(first_params, device=device) * 100
+            crossover_mask = crossover_prob <= cfg.CROSSING_PROBABILITY
 
-        child.state_dict()[layer_name] = child_params
+            child_params = torch.where(crossover_mask, first_params, second_params)
+            child.state_dict()[layer_name].copy_(child_params)
 
     return child
 
-
 def mutation(model):
 
-    for layer_name, _ in model.named_parameters():
-        layer_params = model.state_dict()[layer_name]
-        for tensor in range(len(layer_params)):
-            try:  # when tensor is weight tensor
-                for value in range(len(layer_params[tensor])):
-                    probability = randint(1, 100)
-                    change = randint(-cfg.MUTATION_RATE, cfg.MUTATION_RATE)
-                    if probability <= cfg.MUTATION_FREQUENCY:
-                        layer_params[tensor][value] = layer_params[tensor][value] \
-                                                      + layer_params[tensor][value] \
-                                                      * (change / 1000)
+    with torch.no_grad():
+        for layer_name in model.state_dict():
+            layer_params = model.state_dict()[layer_name]
 
-            except TypeError:  # when tensor is bias tensor
-                probability = randint(1, 100)
-                change = randint(-cfg.MUTATION_RATE, cfg.MUTATION_RATE)
-                if probability <= cfg.MUTATION_FREQUENCY:
-                    layer_params[tensor] = layer_params[tensor] + layer_params[tensor] * (change / 1000)
-        model.state_dict()[layer_name] = layer_params
+            mutation_prob = torch.rand_like(layer_params, device=device) * 100
+            mutation_mask = mutation_prob <= cfg.MUTATION_FREQUENCY
+
+            mutation_changes = torch.randint(-cfg.MUTATION_RATE, cfg.MUTATION_RATE + 1, layer_params.shape, device=device, dtype=torch.float)
+            mutation_factor = 1.0 + (mutation_changes / 1000)
+            
+            mutated_params = torch.where(mutation_mask, layer_params * mutation_factor, layer_params)
+            model.state_dict()[layer_name].copy_(mutated_params)
+
     return model
-
 
 def breeding(first_parent, second_parent, file_number):
     half_offset = (cfg.POPULATION_SIZE - cfg.PARENTS_SIZE) // cfg.PARENTS_SIZE

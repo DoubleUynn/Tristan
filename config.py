@@ -1,4 +1,3 @@
-# TODO: Add configuration variables here
 import signal
 import sys
 import multiprocessing
@@ -7,12 +6,12 @@ def suppress_ctrl_c():
     signal.signal(signal.SIGINT, lambda x, y: sys.exit(0))
 
 MINDS_DIR = 'minds'
-POPULATION_SIZE = 100
-PARENTS_SIZE = 8
-MUTATION_RATE = 100
-MUTATION_FREQUENCY = 70
+POPULATION_SIZE = 75
+PARENTS_SIZE = 6
+MUTATION_RATE = 75
+MUTATION_FREQUENCY = 80
 CROSSING_PROBABILITY = 30
-EPOCHS = 50
+EPOCHS = 700
 
 # Multi-threading configuration
 # Set to 0 to automatically use all available CPU cores

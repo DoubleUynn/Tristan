@@ -1,4 +1,5 @@
 import psutil
+import gc
 import signal
 from piece_maps import piece_maps
 from cynes import * 
@@ -234,6 +235,10 @@ def train():
         ga.mating()
         creation_time = time.time() - start_time
         print(f'Created new models in {creation_time:.2f}')
+        
+        torch.cuda.empty_cache()
+        torch.cuda.synchronize()
+        gc.collect()
 
 if __name__ == "__main__":
     # Ensure minds directory exists
