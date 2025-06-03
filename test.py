@@ -1,4 +1,5 @@
 from piece_maps import piece_maps
+import numpy as np
 from cynes import * 
 import os
 from cynes.windowed import WindowedNES
@@ -102,7 +103,9 @@ def run(mind_num, initializer):
         # Run neural network
         if actable:
             outputs = brain.activate(inputs)
-            action = outputs.index(max(outputs))
+            probs = np.array(outputs)
+            probs = probs / probs.sum()
+            action = np.random.choice(len(outputs), p=probs)
             nes.controller = actions[action]
             last_action = actions[action]
             last_board = board
@@ -149,4 +152,4 @@ def run_brain(mind_num):
     return(score)
 
 if __name__ == "__main__":
-    print(run_brain(1))
+    print(run_generation())
