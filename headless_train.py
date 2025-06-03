@@ -108,8 +108,9 @@ def run(mind_num, initializer):
         # Run neural network
         if actable:
             outputs = brain.activate(inputs)
-            action = np.random.choice(len(outputs), p=outputs)
-            #action = outputs.index(max(outputs))
+            probs = np.array(outputs)
+            probs = probs / probs.sum()
+            action = np.random.choice(len(outputs), p=probs)
             nes.controller = actions[action]
             last_action = actions[action]
             last_board = board

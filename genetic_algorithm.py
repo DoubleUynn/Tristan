@@ -134,7 +134,7 @@ class Brain(nn.Module):
                                  nn.Linear(self.hidden_nodes6, self.hidden_nodes7),
                                  nn.ReLU(),
                                  nn.Linear(self.hidden_nodes7, self.out_nodes),
-                                 nn.Softmax())
+                                 nn.Softmax(dim=-1))
 
     def activate(self, inputs):
         # Get the next move from the network
