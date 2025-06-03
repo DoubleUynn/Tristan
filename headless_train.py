@@ -1,4 +1,6 @@
 import psutil
+import numpy as np
+import torch.nn as nn
 import gc
 import signal
 from piece_maps import piece_maps
@@ -106,7 +108,8 @@ def run(mind_num, initializer):
         # Run neural network
         if actable:
             outputs = brain.activate(inputs)
-            action = outputs.index(max(outputs))
+            action = np.random.choice(len(outputs), p=outputs)
+            #action = outputs.index(max(outputs))
             nes.controller = actions[action]
             last_action = actions[action]
             last_board = board

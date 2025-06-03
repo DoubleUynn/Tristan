@@ -100,16 +100,27 @@ class Brain(nn.Module):
         super(Brain, self).__init__()
 
         self.in_nodes = 407
-        self.hidden_nodes1 = 300 
-        self.hidden_nodes2 = 255
-        self.hidden_nodes3 = 150
-        self.hidden_nodes4 = 100
-        self.hidden_nodes5 = 75
-        self.hidden_nodes6 = 50
+        self.hidden_nodes1 = 370 
+        self.hidden_nodes2 = 300
+        self.hidden_nodes3 = 250
+        self.hidden_nodes4 = 200
+        self.hidden_nodes5 = 100
+        self.hidden_nodes6 = 75
+        self.hidden_nodes7 = 50
         self.out_nodes = 5
         
+        # USE FOR OLD NETWORK. CHANGE self.net ACCORDINGLY
+        #self.in_nodes = 407
+        #self.hidden_nodes1 = 300 
+        #self.hidden_nodes2 = 255
+        #self.hidden_nodes3 = 150
+        #self.hidden_nodes4 = 100
+        #self.hidden_nodes5 = 75
+        #self.hidden_nodes6 = 50
+        #self.out_nodes = 5
+        
         self.net = nn.Sequential(nn.Linear(self.in_nodes, self.hidden_nodes1),
-                                 nn.ReLU(),
+                                  nn.ReLU(),
                                  nn.Linear(self.hidden_nodes1, self.hidden_nodes2),
                                  nn.ReLU(),
                                  nn.Linear(self.hidden_nodes2, self.hidden_nodes3),
@@ -120,8 +131,10 @@ class Brain(nn.Module):
                                  nn.ReLU(),
                                  nn.Linear(self.hidden_nodes5, self.hidden_nodes6),
                                  nn.ReLU(),
-                                 nn.Linear(self.hidden_nodes6, self.out_nodes),
-                                 nn.ReLU())
+                                 nn.Linear(self.hidden_nodes6, self.hidden_nodes7),
+                                 nn.ReLU(),
+                                 nn.Linear(self.hidden_nodes7, self.out_nodes),
+                                 nn.Softmax())
 
     def activate(self, inputs):
         # Get the next move from the network
