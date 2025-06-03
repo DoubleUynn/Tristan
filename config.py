@@ -6,11 +6,11 @@ def suppress_ctrl_c():
     signal.signal(signal.SIGINT, lambda x, y: sys.exit(0))
 
 MINDS_DIR = 'minds'
-POPULATION_SIZE = 75
-PARENTS_SIZE = 6
-MUTATION_RATE = 75
-MUTATION_FREQUENCY = 80
-CROSSING_PROBABILITY = 30
+POPULATION_SIZE = 60
+PARENTS_SIZE = 8
+MUTATION_RATE = 50
+MUTATION_FREQUENCY = 10
+CROSSING_PROBABILITY = 10
 EPOCHS = 700
 
 # Multi-threading configuration
