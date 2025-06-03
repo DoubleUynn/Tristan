@@ -100,13 +100,14 @@ class Brain(nn.Module):
         super(Brain, self).__init__()
 
         self.in_nodes = 407
-        self.hidden_nodes1 = 370 
-        self.hidden_nodes2 = 300
-        self.hidden_nodes3 = 250
-        self.hidden_nodes4 = 200
-        self.hidden_nodes5 = 100
-        self.hidden_nodes6 = 75
-        self.hidden_nodes7 = 50
+        self.hidden_nodes1 = 600
+        self.hidden_nodes2 = 500
+        self.hidden_nodes3 = 400
+        self.hidden_nodes4 = 300
+        self.hidden_nodes5 = 200
+        self.hidden_nodes6 = 100
+        self.hidden_nodes7 = 75
+        self.hidden_nodes8 = 50
         self.out_nodes = 5
         
         # USE FOR OLD NETWORK. CHANGE self.net ACCORDINGLY
@@ -133,7 +134,9 @@ class Brain(nn.Module):
                                  nn.ReLU(),
                                  nn.Linear(self.hidden_nodes6, self.hidden_nodes7),
                                  nn.ReLU(),
-                                 nn.Linear(self.hidden_nodes7, self.out_nodes),
+                                 nn.Linear(self.hidden_nodes7, self.hidden_nodes8),
+                                 nn.ReLU(),
+                                 nn.Linear(self.hidden_nodes8, self.out_nodes),
                                  nn.Softmax(dim=-1))
 
     def activate(self, inputs):
