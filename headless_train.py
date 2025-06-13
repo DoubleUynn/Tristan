@@ -5,6 +5,7 @@ import time
 from utils.genetic_algorithm import sort_best, save_best, mating
 import torch
 import utils.config as cfg
+from utils.prep import preparation()
 from utils.run import run
 import statistics as st
 import concurrent.futures
