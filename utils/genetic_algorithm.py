@@ -114,7 +114,8 @@ class Brain(nn.Module):
                 nn.ReLU(),
                 nn.Linear(512, 256),
                 nn.ReLU(),
-                nn.Linear(256, 5))
+                nn.Linear(256, 5),
+                nn.ReLU())
 
     def activate(self, board, last_board, next_piece):
         board = torch.Tensor(board)
