@@ -5,6 +5,7 @@ import utils.config as cfg
 from cynes import *
 from utils.piece_maps import piece_maps, next_piece_ids
 from utils.genetic_algorithm import Brain, fitness
+import utils.genetic_algorithm as ga
 
 actions = [NES_INPUT_A, NES_INPUT_B, NES_INPUT_DOWN, NES_INPUT_LEFT, NES_INPUT_RIGHT]
 
@@ -98,6 +99,6 @@ def run(mind_num, initializer):
         nes[0x00F7] = 0
         frames_survived += 1
     
-    fitness = fitness(board, score, frames_survived)
+    fitness = ga.fitness(board, score, frames_survived)
     print(f'Brain: {mind_num}; fitness: {fitness}')
     return fitness
