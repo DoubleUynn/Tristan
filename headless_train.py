@@ -1,12 +1,11 @@
-from piece_maps import piece_maps, next_piece_ids
 import psutil
-import numpy as np
 import gc
 from cynes import NES
 import time
-from genetic_algorithm import Brain, sort_best, save_best, mating
+from utils.genetic_algorithm import sort_best, save_best, mating
 import torch
-import config as cfg
+import utils.config as cfg
+from utils.run import run
 import statistics as st
 import concurrent.futures
 from concurrent.futures import ProcessPoolExecutor as Pool

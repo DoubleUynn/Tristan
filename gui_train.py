@@ -1,10 +1,8 @@
-from prep import preparation
-from piece_maps import piece_maps, next_piece_ids
-from run import run
+from utils.prep import preparation
+from utils.run import run
+from utils.genetic_algorithm import sort_best, save_best, mating
+import utils.config as cfg
 from cynes.windowed import WindowedNES
-import numpy as np
-from genetic_algorithm import Brain, sort_best, save_best, mating
-import config as cfg
 import statistics as st
 
 cfg.suppress_ctrl_c()
