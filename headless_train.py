@@ -17,8 +17,8 @@ import os
 cfg.suppress_ctrl_c()
 
 torch.set_num_threads(1)
-os.environ['OMP_NUM_THREADS'] = 1
-os.environ['MKL_NUM_THREADS'] = 1
+os.environ['OMP_NUM_THREADS'] = '1'
+os.environ['MKL_NUM_THREADS'] = '1'
 
 def initialize():
     # Create a new NES instance for each process
