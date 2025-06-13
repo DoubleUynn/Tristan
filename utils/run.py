@@ -62,11 +62,12 @@ def run(mind_num, initializer):
         if actable:
             outputs = brain.activate(board, last_board, next_piece)
             probs = np.array(outputs)
-            prob_sum = probs.sum()
+            exp = np.exp(probs)
+            prob_sum = exp.sum()
             if prob_sum == 0:
                 probs = np.ones(len(outputs)) / len(outputs)
             else:
-                probs = probs / prob_sum
+                probs = exp / prob_sum
             action = np.random.choice(len(outputs), p=probs)
             nes.controller = actions[action]
             last_action = actions[action]
