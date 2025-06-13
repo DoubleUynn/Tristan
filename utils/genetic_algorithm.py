@@ -20,7 +20,7 @@ def save_best(list_of_bests):
     for iterator in range(len(list_of_bests)):
         model_file = '{}/{}.pt'.format(cfg.MINDS_DIR, list_of_bests[iterator])
         temp = Brain()
-        temp.load_state_dict(torch.load(model_file), weights_only=True)
+        temp.load_state_dict(torch.load(model_file, weights_only=True))
         torch.save(temp.state_dict(), '{}/{}.pt'.format(cfg.MINDS_DIR, iterator))
 
 
