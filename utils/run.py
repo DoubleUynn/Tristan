@@ -64,6 +64,7 @@ def run(mind_num, initializer):
             probs = np.array(outputs)
             exp = np.exp(probs)
             prob_sum = exp.sum()
+            print(outputs)
             if prob_sum == 0:
                 probs = np.ones(len(outputs)) / len(outputs)
             else:
