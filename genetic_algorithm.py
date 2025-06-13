@@ -110,18 +110,27 @@ class Brain(nn.Module):
         self.hidden_nodes8 = 50
         self.out_nodes = 5
         
-        # USE FOR OLD NETWORK. CHANGE self.net ACCORDINGLY
-        #self.in_nodes = 407
-        #self.hidden_nodes1 = 300 
-        #self.hidden_nodes2 = 255
-        #self.hidden_nodes3 = 150
-        #self.hidden_nodes4 = 100
-        #self.hidden_nodes5 = 75
-        #self.hidden_nodes6 = 50
-        #self.out_nodes = 5
+        # We're going to treat our two frames of data as two different channels for the purpose of convolution
+        self.conv = nn.Sequential(
+                nn.Conv2d(2, 20, 2, stride=1),
+                nn.ReLU(),
+                nn.Conv2d(20, 20, 2, stride=1),
+                nn.ReLU(),
+                nn.Flatten())
+
+        # Our output shape should now be 20x10x20, which is 4000
+        # We can then append our "next piece" inputs to these sequential layers, which makes it 4007
+        self.dense = nn.Sequential(
+                nn.Linear(4007, 512),
+                nn.ReLU(),
+                nn.Linear(512, 256),
+                nn.ReLU(),
+                nn.Linear(256, 5),
+                nn.ReLU())
+
         
         self.net = nn.Sequential(nn.Linear(self.in_nodes, self.hidden_nodes1),
-                                  nn.ReLU(),
+                                 nn.ReLU(),
                                  nn.Linear(self.hidden_nodes1, self.hidden_nodes2),
                                  nn.ReLU(),
                                  nn.Linear(self.hidden_nodes2, self.hidden_nodes3),
@@ -142,13 +151,15 @@ class Brain(nn.Module):
     def activate(self, inputs):
         # Get the next move from the network
         inputs = torch.tensor(inputs).float()
-        net_product = self.net(inputs).tolist()
+        # net_product = self.net(inputs).tolist()
 
         return net_product
 
     def get_weights(self):
         weights = []
-        for i in self.net:
+        for i in self.conv:
+            if not isinstance(i, torch.nn.modules.activation.ReLU):
+        for i in self.dense:
             if not isinstance(i, torch.nn.modules.activation.ReLU):
                 weights.append(i.weight)
 
