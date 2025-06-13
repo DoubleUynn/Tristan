@@ -11,8 +11,14 @@ import statistics as st
 import concurrent.futures
 from concurrent.futures import ProcessPoolExecutor as Pool
 import multiprocessing
+import torch
+import os
 
 cfg.suppress_ctrl_c()
+
+torch.set_num_threads(1)
+os.environ['OMP_NUM_THREADS'] = 1
+os.environ['MKL_NUM_THREADS'] = 1
 
 def initialize():
     # Create a new NES instance for each process
@@ -37,7 +43,7 @@ def run_generation():
     print(f"Using {num_workers} workers for parallel training")
 
     # Create a process pool and run the brains in parallel
-    with Pool(max_workers=num_workers, mp_context=multiprocessing.get_context('spawn')) as executor:
+    with Pool(max_workers=num_workers, mp_context=multiprocessing.get_context('forkserver')) as executor:
         future_to_brain = {}
 
         for i in range(cfg.POPULATION_SIZE):
