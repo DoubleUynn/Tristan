@@ -97,8 +97,6 @@ def run(mind_num, initializer):
         nes[0x00F5] = 0
         nes[0x00F7] = 0
         frames_survived += 1
-        if frames_survived % 500 == 0:
-            print(f'Mind num: {mind_num}, Frame: {frames_survived}')
     
     fitness = fitness(board, score, frames_survived)
     print(f'Brain: {mind_num}; fitness: {fitness}')
