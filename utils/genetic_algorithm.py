@@ -2,7 +2,7 @@ from random import randint
 import torch
 import torch.nn as nn
 import numpy as np
-import config as cfg
+import utils.config as cfg
 import numpy as np
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -98,17 +98,6 @@ def fitness(ending_board, score, time):
 class Brain(nn.Module):
     def __init__(self):
         super(Brain, self).__init__()
-
-        self.in_nodes = 407
-        self.hidden_nodes1 = 600
-        self.hidden_nodes2 = 500
-        self.hidden_nodes3 = 400
-        self.hidden_nodes4 = 300
-        self.hidden_nodes5 = 200
-        self.hidden_nodes6 = 100
-        self.hidden_nodes7 = 75
-        self.hidden_nodes8 = 50
-        self.out_nodes = 5
         
         # We're going to treat our two frames of data as two different channels for the purpose of convolution
         self.conv = nn.Sequential(
@@ -127,26 +116,6 @@ class Brain(nn.Module):
                 nn.ReLU(),
                 nn.Linear(256, 5),
                 nn.ReLU())
-
-        
-        self.net = nn.Sequential(nn.Linear(self.in_nodes, self.hidden_nodes1),
-                                 nn.ReLU(),
-                                 nn.Linear(self.hidden_nodes1, self.hidden_nodes2),
-                                 nn.ReLU(),
-                                 nn.Linear(self.hidden_nodes2, self.hidden_nodes3),
-                                 nn.ReLU(),
-                                 nn.Linear(self.hidden_nodes3, self.hidden_nodes4),
-                                 nn.ReLU(),
-                                 nn.Linear(self.hidden_nodes4, self.hidden_nodes5),
-                                 nn.ReLU(),
-                                 nn.Linear(self.hidden_nodes5, self.hidden_nodes6),
-                                 nn.ReLU(),
-                                 nn.Linear(self.hidden_nodes6, self.hidden_nodes7),
-                                 nn.ReLU(),
-                                 nn.Linear(self.hidden_nodes7, self.hidden_nodes8),
-                                 nn.ReLU(),
-                                 nn.Linear(self.hidden_nodes8, self.out_nodes),
-                                 nn.Softmax(dim=-1))
 
     def activate(self, board, last_board, next_piece):
         board = torch.Tensor(board)

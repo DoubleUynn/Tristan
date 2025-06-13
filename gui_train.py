@@ -3,6 +3,7 @@ from utils.run import run
 from utils.genetic_algorithm import sort_best, save_best, mating
 import utils.config as cfg
 from cynes.windowed import WindowedNES
+from cynes import *
 import statistics as st
 
 cfg.suppress_ctrl_c()

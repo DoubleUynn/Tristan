@@ -1,11 +1,11 @@
 import os
 import shutil
 import torch
-import config as cfg
-from genetic_algorithm import Brain
+import utils.config as cfg
+from utils.genetic_algorithm import Brain
 
 def preparation():
-    confirm = input(f'Do you want to create {cfg.POPULATION_SIZE} new models? [y/n] '
+    confirm = input(f'Do you want to create {cfg.POPULATION_SIZE} new models? [y/n] ')
 
     if confirm == 'y':
         try:

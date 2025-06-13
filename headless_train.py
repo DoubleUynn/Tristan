@@ -1,6 +1,6 @@
 import psutil
 import gc
-from cynes import NES
+from cynes import *
 import time
 from utils.genetic_algorithm import sort_best, save_best, mating
 import torch

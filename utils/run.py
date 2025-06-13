@@ -1,10 +1,10 @@
 import torch
 import numpy as np
 
-import config as cfg
+import utils.config as cfg
 from cynes import *
-from piece_maps import piece_maps, next_piece_ids
-from genetic_algorithm import Brain, fitness
+from utils.piece_maps import piece_maps, next_piece_ids
+from utils.genetic_algorithm import Brain, fitness
 
 actions = [NES_INPUT_A, NES_INPUT_B, NES_INPUT_DOWN, NES_INPUT_LEFT, NES_INPUT_RIGHT]
 
