@@ -13,7 +13,7 @@ def run(mind_num, initializer):
     nes = initializer()
     brain = Brain() 
     try:
-        brain.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, mind_num)))
+        brain.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, mind_num), weights_only=True))
     except Exception as e:
         print(f"Error loading brain {mind_num}: {e}")
         return 0

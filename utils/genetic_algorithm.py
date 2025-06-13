@@ -20,7 +20,7 @@ def save_best(list_of_bests):
     for iterator in range(len(list_of_bests)):
         model_file = '{}/{}.pt'.format(cfg.MINDS_DIR, list_of_bests[iterator])
         temp = Brain()
-        temp.load_state_dict(torch.load(model_file))
+        temp.load_state_dict(torch.load(model_file), weights_only=True)
         torch.save(temp.state_dict(), '{}/{}.pt'.format(cfg.MINDS_DIR, iterator))
 
 
@@ -79,9 +79,9 @@ def mating():
     counter = cfg.PARENTS_SIZE
     for it in range(0, cfg.PARENTS_SIZE, 2):
         first = Brain()
-        first.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, it)))
+        first.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, it), weights_only=True))
         second = Brain()
-        second.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, it + 1)))
+        second.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, it + 1), weights_only=True))
         counter = breeding(first, second, counter)
 
 def fitness(ending_board, score, time):
