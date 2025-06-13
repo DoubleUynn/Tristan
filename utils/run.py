@@ -66,7 +66,7 @@ def run(mind_num, initializer):
             if prob_sum == 0:
                 probs = np.ones(len(outputs)) / len(outputs)
             else:
-                probs = probs / probs_sum
+                probs = probs / prob_sum
             action = np.random.choice(len(outputs), p=probs)
             nes.controller = actions[action]
             last_action = actions[action]
