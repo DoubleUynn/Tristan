@@ -66,6 +66,7 @@ def run(mind_num, initializer):
             prob_sum = probs.sum()
             if prob_sum == 0:
                 probs = np.ones(len(outputs)) / len(outputs)
+                print("random action triggered")
             else:
                 probs = probs / prob_sum
             action = np.random.choice(len(outputs), p=probs)
