@@ -63,7 +63,7 @@ def run(mind_num, initializer):
             outputs = brain.activate(board, last_board, next_piece)
             probs = np.array(outputs)
             prob_sum = probs.sum()
-            if probs_sum == 0:
+            if prob_sum == 0:
                 probs = np.ones(len(outputs)) / len(outputs)
             else:
                 probs = probs / probs_sum
