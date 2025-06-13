@@ -2,20 +2,20 @@ import os
 import shutil
 import torch
 import config as cfg
-import genetic_algorithm as ga
+from genetic_algorithm import Brain
 
 def preparation():
-    confirm = input('Do you want to create {} new models? [y/n] '.format(cfg.POPULATION_SIZE))
+    confirm = input(f'Do you want to create {cfg.POPULATION_SIZE} new models? [y/n] '
 
     if confirm == 'y':
         try:
-            shutil.rmtree('minds')
+            shutil.rmtree(cfg.MINDS_DIR)
         except FileNotFoundError:
             pass
-        os.mkdir('minds')
+        os.mkdir(cfg.MINDS_DIR)
 
         for iterator in range(cfg.POPULATION_SIZE):
-            temp = ga.Brain()
+            temp = Brain()
             torch.save(temp.state_dict(), '{}/{}.pt'.format(cfg.MINDS_DIR, iterator))
 
         print('Done!')

@@ -118,10 +118,10 @@ class Brain(nn.Module):
                 nn.ReLU(),
                 nn.Flatten())
 
-        # Our output shape should now be 20x10x20, which is 4000
-        # We can then append our "next piece" inputs to these sequential layers, which makes it 4007
+        # Our output shape should now be 20x18x8, which is 2880
+        # We can then append our "next piece" inputs to these sequential layers, which makes it 2887
         self.dense = nn.Sequential(
-                nn.Linear(4007, 512),
+                nn.Linear(2887, 512),
                 nn.ReLU(),
                 nn.Linear(512, 256),
                 nn.ReLU(),
@@ -148,17 +148,26 @@ class Brain(nn.Module):
                                  nn.Linear(self.hidden_nodes8, self.out_nodes),
                                  nn.Softmax(dim=-1))
 
-    def activate(self, inputs):
-        # Get the next move from the network
-        inputs = torch.tensor(inputs).float()
-        # net_product = self.net(inputs).tolist()
+    def activate(self, board, last_board, next_piece):
+        board = torch.Tensor(board)
+        last_board = torch.Tensor(last_board)
+        next_piece = torch.Tensor(next_piece)
 
-        return net_product
+        combined_boards = torch.stack([board.squeeze(), last_board.squeeze()], dim=0)
+        input_tensor = combined_boards.view(1, 2, 20, 10)
+
+        conv_result = self.conv(input_tensor)
+        dense_inputs = torch.cat([conv_result.squeeze(), next_piece])
+
+        output = self.dense(dense_inputs).tolist()
+
+        return output 
 
     def get_weights(self):
         weights = []
         for i in self.conv:
             if not isinstance(i, torch.nn.modules.activation.ReLU):
+                weights.append(i.weight)
         for i in self.dense:
             if not isinstance(i, torch.nn.modules.activation.ReLU):
                 weights.append(i.weight)
