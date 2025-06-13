@@ -1,6 +1,6 @@
 from utils.prep import preparation
 from utils.run import run
-from utils.genetic_algorithm import sort_best, save_best, mating
+from utils.genetic_algorithm import sort_best, save_best, mating, fitness
 import utils.config as cfg
 from cynes.windowed import WindowedNES
 from cynes import *

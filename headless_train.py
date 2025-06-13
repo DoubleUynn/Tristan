@@ -2,7 +2,7 @@ import psutil
 import gc
 from cynes import *
 import time
-from utils.genetic_algorithm import sort_best, save_best, mating
+from utils.genetic_algorithm import sort_best, save_best, mating, fitness
 import torch
 import utils.config as cfg
 from utils.prep import preparation
