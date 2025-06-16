@@ -88,13 +88,35 @@ def mating():
         counter = breeding(first, second, counter)
 
 def fitness(ending_board, score, time):
-    ones = ending_board.count(1)
-    zeros = ending_board.count(0)
-    filled_density = ones / (ones + zeros)
-    unfilled_density = zeros / (ones + zeros)
+    board = [ending_board[i * 10:(i + 1) * 10] for i in range(20)]
+    heights = [0] * 10
+    for x in range(10):
+        for y in range(20):
+            if board[y][x] == 1:
+                heights[x] = 20 - y
+                break
+
+    holes = 0
+    for x in range(10):
+        block_found = False
+        for y in range(20):
+            if board[y][x] == 1:
+                block_found = True
+            elif block_found and board[y][x] == 0:
+                holes += 1
+
+    bumpiness = sum(abs(heights[i] - heights[i + 1]) for i in range(9))
+    total_height = sum(heights)
 
     # Calculate the fitness score
-    fitness = 3 * score - 2 * unfilled_density + 4 * filled_density + 0.25 * time
+    fitness = (
+            5 * score -
+            1.5 * holes - 
+            0.5 * total_height -
+            0.2 * bumpiness +
+            0.1 * time
+    )
+
     return fitness
 
 # Here's a network that we could potentially use
