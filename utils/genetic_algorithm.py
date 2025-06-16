@@ -101,21 +101,60 @@ class Brain(nn.Module):
         
         # We're going to treat our two frames of data as two different channels for the purpose of convolution
         self.conv = nn.Sequential(
-                nn.Conv2d(2, 32, 2, stride=2),
-                nn.ReLU(),
+                nn.Conv2d(2, 32, 3, stride=1, padding=1),
+                nn.BatchNorm2d(32),
+                nn.ReLU(inplace=True),
+                nn.Conv2d(32, 32, 3, stride=2, padding=1),
+                nn.BatchNorm2d(32),
+                nn.ReLU(inplace=True),
+
+                nn.Conv2d(32, 64, 3, stride=1, padding=1),
+                nn.BatchNorm2d(64),
+                nn.ReLU(inplace=True),
+                nn.Conv2d(64, 64, 3, stride=2, padding=1),
+                nn.BatchNorm2d(64),
+                nn.ReLU(inplace=True),
+
+                nn.Conv2d(64, 128, 3, stride=1, padding=1),
+                nn.BatchNorm2d(128),
+                nn.ReLU(inplace=True),
+                nn.AdaptiveAvgPool2d((2, 2)),
                 nn.Flatten())
 
         # Our output shape should now be 20x18x8, which is 2880
         # We can then append our "next piece" inputs to these sequential layers, which makes it 2887
         self.dense = nn.Sequential(
-                nn.Linear(1607, 1028),
-                nn.ReLU(),
-                nn.Linear(1028, 512),
-                nn.ReLU(),
+                nn.Linear(519, 512),
+                nn.BatchNorm1d(512),
+                nn.ReLU(inplace=True),
+                nn.Dropout(0.2),
+
                 nn.Linear(512, 256),
-                nn.ReLU(),
-                nn.Linear(256, 5))
-                
+                nn.BatchNorm1d(256),
+                nn.ReLU(inplace=True),
+                nn.Dropout(0.2),
+
+                nn.Linear(256, 128),
+                nn.BatchNorm1d(128),
+                nn.ReLU(inplace=True),
+                nn.Dropout(0.2),
+
+                nn.Linear(128, 5))
+
+        self._initialize_weights()
+
+    def _initialize_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.BatchNorm2d) or isinstance(m, nn.BatchNorm1d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                nn.init.constant_(m.bias, 0)
 
     def activate(self, board, last_board, next_piece):
         board = torch.Tensor(board)
