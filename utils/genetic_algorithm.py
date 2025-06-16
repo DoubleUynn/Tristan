@@ -7,14 +7,8 @@ import numpy as np
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-def sort_best(score_array):
-    best_scores = [0] * cfg.PARENTS_SIZE
-    for it in range(cfg.PARENTS_SIZE):
-        best_scores[it] = score_array.index(max(score_array))
-        score_array[best_scores[it]] = -1
-    best_scores.sort()
-    return best_scores
-
+def sort_best(scores):
+    return sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:cfg.PARENTS_SIZE]
 
 def save_best(list_of_bests):
     for iterator in range(len(list_of_bests)):
