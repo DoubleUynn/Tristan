@@ -43,6 +43,8 @@ def crossing_over(first_parent, second_parent):
                 child_param = torch.where(crossover_mask, first_param, second_param)
 
                 child_state[name].copy_(child_param)
+            else:
+                child_state[name].copy_(first_state[name])
 
     return child
 
