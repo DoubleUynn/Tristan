@@ -62,15 +62,16 @@ def run(mind_num, initializer):
         # Run neural network
         if actable:
             outputs = brain.activate(board, last_board, next_piece)
-            logits = np.array(outputs)
-            exp_logits = np.exp(logits - np.max(logits))
-            probs = exp_logits / np.sum(exp_logits)
+            # logits = np.array(outputs)
+            # exp_logits = np.exp(logits - np.max(logits))
+            # probs = exp_logits / np.sum(exp_logits)
 
-            if probs.sum() == 0:
-                probs = np.ones(len(outputs)) / len(outputs)
-                print("random action triggered")
+            # if probs.sum() == 0:
+            #    probs = np.ones(len(outputs)) / len(outputs)
+            #    print("random action triggered")
 
-            action = np.random.choice(len(outputs), p=probs)
+            # action = np.random.choice(len(outputs), p=probs)
+            action = outputs.index(max(outputs))
             nes.controller = actions[action]
             last_action = actions[action]
             last_board = board
