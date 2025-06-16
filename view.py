@@ -17,4 +17,4 @@ if __name__ == "__main__":
             mind_num = int(sys.argv[1])
         except:
             print("Usage: python test.py {mind_num}")
-        print(run_brain(mind_num, initialize)
+        print(run_brain(mind_num, initialize))
