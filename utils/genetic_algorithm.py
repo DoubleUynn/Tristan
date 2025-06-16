@@ -25,13 +25,11 @@ def save_best(list_of_bests):
 
 
 def crossing_over(first_parent, second_parent):
-
     child = Brain().to(device)
     
     with torch.no_grad():
         first_state = first_parent.state_dict()
         second_state = second_parent.state_dict()
-        child_state = child.state_dict()
 
         for name, param in child.named_parameters():
             if param.requires_grad:
@@ -42,26 +40,24 @@ def crossing_over(first_parent, second_parent):
                 crossover_mask = crossover_prob <= cfg.CROSSING_PROBABILITY
                 child_param = torch.where(crossover_mask, first_param, second_param)
 
-                child_state[name].copy_(child_param)
+                param.data.copy_(child_param)
             else:
-                child_state[name].copy_(first_state[name])
+                param.data.copy_(first_state[name])
 
     return child
 
 def mutation(model):
-
     with torch.no_grad():
-        for layer_name in model.state_dict():
-            layer_params = model.state_dict()[layer_name]
+        for name, param in model.named_parameters():
+            if param.requires_grad:
+                mutation_prob = torch.rand_like(param, device=device) * 100
+                mutation_mask = mutation_prob <= cfg.MUTATION_FREQUENCY
 
-            mutation_prob = torch.rand_like(layer_params, device=device) * 100
-            mutation_mask = mutation_prob <= cfg.MUTATION_FREQUENCY
-
-            mutation_changes = torch.randint(-cfg.MUTATION_RATE, cfg.MUTATION_RATE + 1, layer_params.shape, device=device, dtype=torch.float)
-            mutation_factor = 1.0 + (mutation_changes / 1000)
-            
-            mutated_params = torch.where(mutation_mask, layer_params * mutation_factor, layer_params)
-            model.state_dict()[layer_name].copy_(mutated_params)
+                mutation_changes = torch.randint(-cfg.MUTATION_RATE, cfg.MUTATION_RATE + 1, param.shape, device=device, dtype=torch.float)
+                mutation_factor = 1.0 + (mutation_changes / 1000)
+                
+                mutated_param = torch.where(mutation_mask, param * mutation_factor, param)
+                param.data.copy_(mutated_param)
 
     return model
 
