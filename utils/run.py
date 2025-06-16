@@ -104,5 +104,5 @@ def run(mind_num, initializer):
     
     fitness = ga.fitness(board, score, frames_survived)
     print(f'Brain: {mind_num}; fitness: {fitness}')
-    nes.close()
+    del nes
     return fitness
