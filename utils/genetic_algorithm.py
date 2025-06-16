@@ -29,15 +29,20 @@ def crossing_over(first_parent, second_parent):
     child = Brain().to(device)
     
     with torch.no_grad():
-        for layer_name in child.state_dict():
-            first_params = first_parent.state_dict()[layer_name].to(device)
-            second_params = first_parent.state_dict()[layer_name].to(device)
+        first_state = first_parent.state_dict()
+        second_state = second_parent.state_dict()
+        child_state = child.state_dict()
 
-            crossover_prob = torch.rand_like(first_params, device=device) * 100
-            crossover_mask = crossover_prob <= cfg.CROSSING_PROBABILITY
+        for name, param in child.named_parameters():
+            if param.requires_grad:
+                first_param = first_state[name].to(device)
+                second_param = second_state[name].to(device)
 
-            child_params = torch.where(crossover_mask, first_params, second_params)
-            child.state_dict()[layer_name].copy_(child_params)
+                crossover_prob = torch.rand_like(first_param, device=device) * 100
+                crossover_mask = crossover_prob <= cfg.CROSSING_PROBABILITY
+                child_param = torch.where(crossover_mask, first_param, second_param)
+
+                child_state[name].copy_(child_param)
 
     return child
 
