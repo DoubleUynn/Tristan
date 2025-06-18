@@ -4,6 +4,8 @@ import utils.config as cfg
 from utils.genetic_algorithm import Brain, mutation
 import numpy as np
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 def compare_models(model1, model2):
     total_params = 0
     different_params = 0
@@ -45,10 +47,10 @@ def verify_mutation(generation=0, num_tests=5):
     
     for test_num in range(num_tests):
         # Create a model
-        original_model = Brain()
+        original_model = Brain().to(device)
         
         # Create a deep copy of the model
-        copied_model = Brain()
+        copied_model = Brain().to(device)
         copied_model.load_state_dict(original_model.state_dict())
         
         # Verify the copy is identical
