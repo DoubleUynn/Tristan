@@ -250,10 +250,10 @@ class Brain(nn.Module):
         next_piece = torch.Tensor(next_piece)
 
         combined_boards = torch.stack([board.squeeze(), last_board.squeeze()], dim=0)
-        input_tensor = combined_boards.view(1, 2, 20, 10)
+        input_tensor = combined_boards.view(1, 2, 20, 10).to(device)
 
         conv_result = self.conv(input_tensor)
-        dense_inputs = torch.cat([conv_result.squeeze(), next_piece])
+        dense_inputs = torch.cat([conv_result.squeeze(), next_piece]).to(device)
 
         output = self.dense(dense_inputs).tolist()
 
