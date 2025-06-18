@@ -87,7 +87,7 @@ def save_best(list_of_bests):
         model_file = '{}/{}.pt'.format(cfg.MINDS_DIR, list_of_bests[iterator])
         temp = Brain()
         temp.load_state_dict(torch.load(model_file))
-        torch.save(temp.state_dict(), '{}/{}.pt'.format(cfg.ELITES_DIR, iterator))
+        torch.save(temp.state_dict(), '{}/{}.pt'.format(cfg.ELITE_DIR, iterator))
 
 def crossing_over(first_parent, second_parent):
     child = Brain().to(device)
