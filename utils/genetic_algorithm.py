@@ -40,7 +40,18 @@ def crossing_over(first_parent, second_parent):
 
     return child
 
-def mutation(model):
+def mutation(model, generation=0):
+    if generation < 100:
+        mutation_freq = cfg.MUTATION_FREQUENCY * 1.5
+        mutation_rate = 200
+    elif generation < 300:
+        mutation_freq = cfg.MUTATION_FREQUENCY
+        mutation_rate = cfg.MUTATION_RATE
+    else:
+        mutation_freq = cfg.MUTATION_FREQUENCY * 0.7
+        mutation_rate = 30
+
+
     with torch.no_grad():
         for name, param in model.named_parameters():
             if param.requires_grad:
