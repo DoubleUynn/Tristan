@@ -56,7 +56,7 @@ def quick_diversity_check():
     indices = sample(range(cfg.POPULATION_SIZE), min(10, cfg.POPUALATION_SIZE))
 
     models = []
-    for i in indices
+    for i in indices:
         model = Brain()
         model.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{i}.pt', weights_only=True))
         models.append(model)
