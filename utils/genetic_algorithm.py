@@ -61,7 +61,7 @@ def quick_diversity_check():
         model.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{i}.pt', weights_only=True))
         models.append(model)
 
-    total_difference = []
+    total_differences = []
     for i in range(len(models)):
         for j in range(i + 1, len(models)):
             model_diff = 0
