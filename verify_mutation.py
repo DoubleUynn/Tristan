@@ -1,10 +1,8 @@
 import torch
 import os
 import utils.config as cfg
-from utils.genetic_algorithm import Brain, mutation
+from utils.genetic_algorithm import Brain, mutation, device  # Import device from genetic_algorithm
 import numpy as np
-
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def compare_models(model1, model2):
     total_params = 0
