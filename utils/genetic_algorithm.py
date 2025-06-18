@@ -145,12 +145,32 @@ def mutation(model, generation=0):
 
     return model
 
+def model_diff(m1, m2):
+    diff = 0
+    count = 0
+    for (_, p1), (_, p2) in zip(m1.named_parameters(), m2.named_parameters()):
+        if p1.requires_grad:
+            diff += torch.mean(torch.abs(p1 - p2)).item()
+            count += 1
+
+    return diff / count
+
 def breeding(first_parent, second_parent, file_number, generation=0):
     half_offset = (cfg.POPULATION_SIZE - cfg.PARENTS_SIZE) // cfg.PARENTS_SIZE
 
     for iterator in range(half_offset):
         child = crossing_over(first_parent, second_parent)
         child = mutation(child, generation)
+        
+        difference_1 = model_diff(child, first_parent)
+        difference_2 = model_diff(child, second_parent)
+
+        if difference_1 < 0.001 and difference_2 < 0.001:
+            print("Child identical to parents!")
+        elif difference_1 < 0.01 or difference_2 < 0.01:
+            print("Child is very similar to one parent")
+        else:
+            print("Breeding is working!")
 
         child_cpu = Brain()
         child_cpu.load_state_dict({k: v.cpu() for k, v in child.state_dict().items()})
@@ -162,6 +182,16 @@ def breeding(first_parent, second_parent, file_number, generation=0):
 
         child = crossing_over(second_parent, first_parent)
         child = mutation(child, generation)
+
+        difference_1 = model_diff(child, first_parent)
+        difference_2 = model_diff(child, second_parent)
+
+        if difference_1 < 0.001 and difference_2 < 0.001:
+            print("Child identical to parents!")
+        elif difference_1 < 0.01 or difference_2 < 0.01:
+            print("Child is very similar to one parent")
+        else:
+            print("Breeding is working!")
 
         child_cpu = Brain()
         child_cpu.load_state_dict({k: v.cpu() for k, v in child.state_dict().items()})
