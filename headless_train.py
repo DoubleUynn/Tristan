@@ -96,16 +96,16 @@ def train():
 
         if max(scores) > best_score:
             best_score = round(max(scores), 3)
-            best_epoch = epoch + 1
+            best_epoch = epoch
 
         if st.mean(scores) > best_average:
             best_average = round(st.mean(scores), 3)
-            best_average_epoch = epoch + 1
+            best_average_epoch = epoch
 
         print(f'Best score: {max(scores)}')
         print(f'Average score: {st.mean(scores):.2f}')
         
-        print(f'Epoch: {epoch + 1} - Best epoch: {best_epoch} - Best average epoch: {best_average_epoch}')
+        print(f'Epoch: {epoch} - Best epoch: {best_epoch} - Best average epoch: {best_average_epoch}')
         print(f'Epoch completed in {epoch_time:.2f} seconds')
 
         print('Sorting by best scores...')
@@ -122,7 +122,7 @@ def train():
         
         print('Creating next generation...')
         start_time = time.time()
-        mating()
+        mating(epoch)
         creation_time = time.time() - start_time
         print(f'Created new models in {creation_time:.2f}')
         
