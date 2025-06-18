@@ -66,12 +66,12 @@ def mutation(model, generation=0):
 
     return model
 
-def breeding(first_parent, second_parent, file_number):
+def breeding(first_parent, second_parent, file_number, generation=0):
     half_offset = (cfg.POPULATION_SIZE - cfg.PARENTS_SIZE) // cfg.PARENTS_SIZE
 
     for iterator in range(half_offset):
         child = crossing_over(first_parent, second_parent)
-        child = mutation(child)
+        child = mutation(child, generation)
         torch.save(child.state_dict(), '{}/{}.pt'.format(cfg.MINDS_DIR, file_number))
         file_number += 1
 
@@ -83,14 +83,14 @@ def breeding(first_parent, second_parent, file_number):
     return file_number
 
 
-def mating():
+def mating(generation=0):
     counter = cfg.PARENTS_SIZE
     for it in range(0, cfg.PARENTS_SIZE, 2):
         first = Brain()
         first.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, it), weights_only=True))
         second = Brain()
         second.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, it + 1), weights_only=True))
-        counter = breeding(first, second, counter)
+        counter = breeding(first, second, counter, generation)
 
 def fitness(ending_board, score, time):
     board = [ending_board[i * 10:(i + 1) * 10] for i in range(20)]

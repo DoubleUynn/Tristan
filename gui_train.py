@@ -37,19 +37,19 @@ def train():
         scores = run_generation()
         if max(scores) > best_score:
             best_score = round(max(scores), 3)
-            best_epoch = epoch + 1
+            best_epoch = epoch
 
         if st.mean(scores) > best_average:
             best_average = round(st.mean(scores), 3)
-            best_average_epoch = epoch + 1
+            best_average_epoch = epoch
 
         print(f'Best score: {max(scores)}')
         print(f'Average score: {st.mean(scores):.2f}')
         
-        print(f'Epoch: {epoch + 1} - Best epoch: {best_epoch} - Best average epoch: {best_average_epoch}')
+        print(f'Epoch: {epoch} - Best epoch: {best_epoch} - Best average epoch: {best_average_epoch}')
         best = sort_best(scores)
         save_best(best)
-        mating()
+        mating(epoch)
 
 if __name__ == '__main__':
     preparation()
