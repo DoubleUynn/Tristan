@@ -14,7 +14,7 @@ def check_initial_diversity():
         model.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{i}.pt', weights_only=True))
         models.append(model)
 
-    total_diff = []
+    total_differences = []
     comparisons = 0
 
     for i in range(len(models)):
