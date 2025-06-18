@@ -83,7 +83,6 @@ def run_generation():
     return scores
 
 def train():
-
     best_score = 0
     best_epoch = 0
     best_average = 0
