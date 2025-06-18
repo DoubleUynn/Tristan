@@ -257,7 +257,7 @@ class Brain(nn.Module):
     def activate(self, board, last_board, next_piece):
         self.cpu()
 
-        board = torch.Tensor(board).to(device)
+        board = torch.Tensor(board)
         last_board = torch.Tensor(last_board)
         next_piece = torch.Tensor(next_piece)
 
