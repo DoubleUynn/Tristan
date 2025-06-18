@@ -245,9 +245,11 @@ class Brain(nn.Module):
                 nn.init.constant_(m.bias, 0)
 
     def activate(self, board, last_board, next_piece):
-        board = torch.Tensor(board)
-        last_board = torch.Tensor(last_board)
-        next_piece = torch.Tensor(next_piece)
+        self.to(device)
+
+        board = torch.Tensor(board).to(device)
+        last_board = torch.Tensor(last_board).to(device)
+        next_piece = torch.Tensor(next_piece).to(device)
 
         combined_boards = torch.stack([board.squeeze(), last_board.squeeze()], dim=0)
         input_tensor = combined_boards.view(1, 2, 20, 10)
@@ -256,6 +258,8 @@ class Brain(nn.Module):
         dense_inputs = torch.cat([conv_result.squeeze(), next_piece])
 
         output = self.dense(dense_inputs).tolist()
+        
+        self.cpu()
 
         return output 
 
