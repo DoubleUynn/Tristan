@@ -122,6 +122,8 @@ def mutation(model, generation=0):
         mutation_freq = cfg.MUTATION_FREQUENCY * 0.7
         mutation_rate = 30
 
+    mutations_made = 0
+    total_params = 0
 
     with torch.no_grad():
         for name, param in model.named_parameters():
