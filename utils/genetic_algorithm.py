@@ -83,10 +83,29 @@ def sort_best(scores):
 
 def save_best(list_of_bests):
     for iterator in range(len(list_of_bests)):
+
         model_file = '{}/{}.pt'.format(cfg.MINDS_DIR, list_of_bests[iterator])
         temp = Brain()
         temp.load_state_dict(torch.load(model_file))
         torch.save(temp.state_dict(), '{}/{}.pt'.format(cfg.MINDS_DIR, iterator))
+
+def save_elites(best_indices, scores, generation):
+    elite_dir = cfg.ELITE_DIR
+    os.makedirs(elite_dir, exist_ok=True)
+
+    for filename in os.listdir(elite_dir):
+        if filename.endswith('.pt'):
+            os.remove(f'{elite_dir}/{filename}')
+
+    elite_count = cfg.ELITE_COUNT
+
+    for i in range(elite_count):
+        elite_score = scores[best_indices[i]]
+
+        model_state = torch.load(f'{cfg.MINDS_DIR}/{i}.pt')
+
+        elite_filename = f'elite_{i}_gen{generation}_score{elite_score}.pt'
+        torch.save(model_state, f'{elite_dir}/{elite_filename}')
 
 def crossing_over(first_parent, second_parent):
     child = Brain().to(device)
@@ -222,17 +241,17 @@ def elitism_mating(generation=0):
         if it < elite_count:
             continue
 
-    first = Brain().to(device)
-    first.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{it}.pt'))
+        first = Brain().to(device)
+        first.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{it}.pt'))
 
-    second_idx = min(it + 1, cfg.PARENTS_SIZE - 1)
-    second = Brain().to(device)
-    second.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{second_idx}.pt'))
+        second_idx = min(it + 1, cfg.PARENTS_SIZE - 1)
+        second = Brain().to(device)
+        second.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{second_idx}.pt'))
 
-    counter = breeding(first, second, counter, generation)
+        counter = breeding(first, second, counter, generation)
 
-    del first, second
-    torch.cuda.empty_cache()
+        del first, second
+        torch.cuda.empty_cache()
 
 def fitness(ending_board, score, time):
     board = [ending_board[i * 10:(i + 1) * 10] for i in range(20)]

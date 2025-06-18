@@ -20,6 +20,7 @@ EPOCHS = 1000
 MAX_WORKERS = 0  # Will default to multiprocessing.cpu_count() if set to 0
 
 ELITE_COUNT = 2
+ELITE_DIR = 'elites'
 TOURNAMENT_SIZE = 3
 
 INITIAL_MUTATION_RATE = 10
