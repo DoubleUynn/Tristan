@@ -127,7 +127,7 @@ def train():
         
         print('Creating next generation...')
         start_time = time.time()
-        mating(epoch)
+        elitism_mating(epoch)
         creation_time = time.time() - start_time
         print(f'Created new models in {creation_time:.2f}')
         
