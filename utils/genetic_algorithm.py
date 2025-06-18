@@ -119,42 +119,24 @@ class Brain(nn.Module):
         
         # We're going to treat our two frames of data as two different channels for the purpose of convolution
         self.conv = nn.Sequential(
-                nn.Conv2d(2, 32, 3, stride=1, padding=1),
-                nn.BatchNorm2d(32),
+                nn.Conv2d(2, 16, 3, padding=1),
                 nn.ReLU(inplace=True),
-                nn.Conv2d(32, 32, 3, stride=2, padding=1),
-                nn.BatchNorm2d(32),
+                nn.MaxPool2d(2),
+                nn.Conv2d(16, 32, 3, padding=1),
                 nn.ReLU(inplace=True),
-
-                nn.Conv2d(32, 64, 3, stride=1, padding=1),
-                nn.BatchNorm2d(64),
-                nn.ReLU(inplace=True),
-                nn.Conv2d(64, 64, 3, stride=2, padding=1),
-                nn.BatchNorm2d(64),
-                nn.ReLU(inplace=True),
-
-                nn.Conv2d(64, 128, 3, stride=1, padding=1),
-                nn.BatchNorm2d(128),
-                nn.ReLU(inplace=True),
-                nn.AdaptiveAvgPool2d((2, 2)),
+                nn.AdaptiveAvgPool2d((4,3)),
                 nn.Flatten())
-
+j
         # Our output shape should now be 20x18x8, which is 2880
         # We can then append our "next piece" inputs to these sequential layers, which makes it 2887
         self.dense = nn.Sequential(
-                nn.Linear(519, 512),
+                nn.Linear((32 * 4 * 3) + 7, 64),
                 nn.ReLU(inplace=True),
-                nn.Dropout(0.2),
 
-                nn.Linear(512, 256),
+                nn.Linear(64, 32),
                 nn.ReLU(inplace=True),
-                nn.Dropout(0.2),
 
-                nn.Linear(256, 128),
-                nn.ReLU(inplace=True),
-                nn.Dropout(0.2),
-
-                nn.Linear(128, 5))
+                nn.Linear(32, 5))
 
         self._initialize_weights()
 

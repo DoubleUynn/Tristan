@@ -7,11 +7,11 @@ def suppress_ctrl_c():
 
 MINDS_DIR = 'minds'
 POPULATION_SIZE = 60
-PARENTS_SIZE = 12
-MUTATION_RATE = 60
-MUTATION_FREQUENCY = 50
-CROSSING_PROBABILITY = 70
-EPOCHS = 700
+PARENTS_SIZE = 18
+MUTATION_RATE = 100
+MUTATION_FREQUENCY = 30
+CROSSING_PROBABILITY = 50
+EPOCHS = 1000
 
 # Multi-threading configuration
 # Set to 0 to automatically use all available CPU cores
