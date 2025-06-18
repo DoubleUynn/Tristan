@@ -114,11 +114,11 @@ def train():
         sort_time = time.time() - start_time
         print(f'Sorted by best scores in {sort_time:.2f}')
 
-        # print('Saving best models...')
-        # start_time = time.time()
-        # save_best(best)
-        # save_time = time.time() - start_time
-        # print(f'Saved best models in {save_time:.2f}')
+        print('Saving best models...')
+        start_time = time.time()
+        save_best(best)
+        save_time = time.time() - start_time
+        print(f'Saved best models in {save_time:.2f}')
 
         if epoch % 20 == 0:
             print('Checking diversity')

@@ -82,30 +82,12 @@ def sort_best(scores):
     return sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:cfg.PARENTS_SIZE]
 
 def save_best(list_of_bests):
-    for iterator in range(len(list_of_bests)):
+    for iterator in range(cfg.ELITE_COUNT):
 
         model_file = '{}/{}.pt'.format(cfg.MINDS_DIR, list_of_bests[iterator])
         temp = Brain()
         temp.load_state_dict(torch.load(model_file))
-        torch.save(temp.state_dict(), '{}/{}.pt'.format(cfg.MINDS_DIR, iterator))
-
-def save_elites(best_indices, scores, generation):
-    elite_dir = cfg.ELITE_DIR
-    os.makedirs(elite_dir, exist_ok=True)
-
-    for filename in os.listdir(elite_dir):
-        if filename.endswith('.pt'):
-            os.remove(f'{elite_dir}/{filename}')
-
-    elite_count = cfg.ELITE_COUNT
-
-    for i in range(elite_count):
-        elite_score = scores[best_indices[i]]
-
-        model_state = torch.load(f'{cfg.MINDS_DIR}/{i}.pt')
-
-        elite_filename = f'elite_{i}_gen{generation}_score{elite_score}.pt'
-        torch.save(model_state, f'{elite_dir}/{elite_filename}')
+        torch.save(temp.state_dict(), '{}/{}.pt'.format(cfg.ELITES_DIR, iterator))
 
 def crossing_over(first_parent, second_parent):
     child = Brain().to(device)
