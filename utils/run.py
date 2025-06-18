@@ -9,12 +9,14 @@ import utils.genetic_algorithm as ga
 
 actions = [NES_INPUT_A, NES_INPUT_B, NES_INPUT_DOWN, NES_INPUT_LEFT, NES_INPUT_RIGHT]
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 def run(mind_num, initializer):
     # Each process gets its own NES instance
     nes = initializer()
-    brain = Brain() 
+    brain = Brain().to(device)
     try:
-        brain.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, mind_num), weights_only=True))
+        brain.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, mind_num)))
     except Exception as e:
         print(f"Error loading brain {mind_num}: {e}")
         return 0

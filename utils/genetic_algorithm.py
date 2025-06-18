@@ -11,7 +11,7 @@ def check_initial_diversity():
     models = []
     for i in range(cfg.POPULATION_SIZE):
         model = Brain()
-        model.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{i}.pt', weights_only=True))
+        model.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{i}.pt' ))
         models.append(model)
 
     total_differences = []
@@ -58,7 +58,7 @@ def quick_diversity_check():
     models = []
     for i in indices:
         model = Brain()
-        model.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{i}.pt', weights_only=True))
+        model.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{i}.pt'))
         models.append(model)
 
     total_differences = []
@@ -85,7 +85,7 @@ def save_best(list_of_bests):
     for iterator in range(len(list_of_bests)):
         model_file = '{}/{}.pt'.format(cfg.MINDS_DIR, list_of_bests[iterator])
         temp = Brain()
-        temp.load_state_dict(torch.load(model_file, weights_only=True))
+        temp.load_state_dict(torch.load(model_file))
         torch.save(temp.state_dict(), '{}/{}.pt'.format(cfg.MINDS_DIR, iterator))
 
 
@@ -167,9 +167,9 @@ def mating(generation=0):
     counter = cfg.PARENTS_SIZE
     for it in range(0, cfg.PARENTS_SIZE, 2):
         first = Brain()
-        first.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, it), weights_only=True))
+        first.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, it)))
         second = Brain()
-        second.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, it + 1), weights_only=True))
+        second.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, it + 1)))
         counter = breeding(first, second, counter, generation)
 
 def fitness(ending_board, score, time):
