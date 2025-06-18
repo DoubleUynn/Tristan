@@ -257,9 +257,9 @@ class Brain(nn.Module):
     def activate(self, board, last_board, next_piece):
         self.cpu()
 
-        board = torch.Tensor(board)
-        last_board = torch.Tensor(last_board)
-        next_piece = torch.Tensor(next_piece)
+        board = torch.Tensor(board).to('cpu')
+        last_board = torch.Tensor(last_board).to('cpu')
+        next_piece = torch.Tensor(next_piece).to('cpu')
 
         combined_boards = torch.stack([board.squeeze(), last_board.squeeze()], dim=0)
         input_tensor = combined_boards.view(1, 2, 20, 10)
