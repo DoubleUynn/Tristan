@@ -188,11 +188,14 @@ def breeding(first_parent, second_parent, file_number, generation=0):
         difference_2 = model_diff(child, second_parent)
 
         if difference_1 < 0.001 and difference_2 < 0.001:
-            print("Child identical to parents!")
+            # print("Child identical to parents!")
+            pass
         elif difference_1 < 0.01 or difference_2 < 0.01:
-            print("Child is very similar to one parent")
+            # print("Child is very similar to one parent")
+            pass
         else:
-            print("Breeding is working!")
+            # print("Breeding is working!")
+            pass
 
         child_cpu = Brain()
         child_cpu.load_state_dict({k: v.cpu() for k, v in child.state_dict().items()})
