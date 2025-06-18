@@ -137,7 +137,7 @@ class Brain(nn.Module):
                 nn.ReLU(inplace=True),
                 nn.AdaptiveAvgPool2d((4,3)),
                 nn.Flatten())
-j
+
         # Our output shape should now be 20x18x8, which is 2880
         # We can then append our "next piece" inputs to these sequential layers, which makes it 2887
         self.dense = nn.Sequential(
