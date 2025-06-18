@@ -2,7 +2,7 @@ import psutil
 import gc
 from cynes import *
 import time
-from utils.genetic_algorithm import sort_best, save_best, mating, fitness
+from utils.genetic_algorithm import sort_best, save_best, mating, fitness, quick_diversity_check
 import torch
 import utils.config as cfg
 from utils.prep import preparation
@@ -119,6 +119,11 @@ def train():
         save_best(best)
         save_time = time.time() - start_time
         print(f'Saved best models in {save_time:.2f}')
+
+        if epoch % 20 == 0:
+            print('Checking diversity')
+            diversity = quick_diversity_check()
+            print(f'Diversity before breeding: {diversity:6f}')
         
         print('Creating next generation...')
         start_time = time.time()

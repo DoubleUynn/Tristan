@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, sample
 import torch
 import torch.nn as nn
 import numpy as np
@@ -51,6 +51,32 @@ def check_initial_diversity():
         print("INFO: Very high diversity")
     else:
         print("Population diversity looks reasonable")
+
+def quick_diversity_check():
+    indices = sample(range(cfg.POPULATION_SIZE), min(10, cfg.POPUALATION_SIZE))
+
+    models = []
+    for i in indices
+        model = Brain()
+        model.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{i}.pt', weights_only=True))
+        models.append(model)
+
+    total_difference = []
+    for i in range(len(models)):
+        for j in range(i + 1, len(models)):
+            model_diff = 0
+            param_count = 0
+            for (name1, param1), (name2, param2) in zip(models[i].named_parameters(), models[j].named_parameters()):
+                if param1.requires_grad:
+                    diff = torch.mean(torch.abs(param1 - param2)).item()
+                    model_diff += diff
+                    param_count += 1
+
+            avg_model_diff = model_diff / param_count
+            total_differences.append(avg_model_diff)
+
+    return sum(total_differences) / len(total_differences) if total_differences else 0 
+
 
 def sort_best(scores):
     return sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:cfg.PARENTS_SIZE]
