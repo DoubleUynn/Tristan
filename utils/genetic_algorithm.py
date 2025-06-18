@@ -10,7 +10,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 def check_initial_diversity():
     models = []
     for i in range(cfg.POPULATION_SIZE):
-        model = Brain().to(device)
+        model = Brain()
         model.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{i}.pt' ))
         models.append(model)
 
@@ -57,7 +57,7 @@ def quick_diversity_check():
 
     models = []
     for i in indices:
-        model = Brain().to(device)
+        model = Brain()
         model.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{i}.pt'))
         models.append(model)
 
@@ -84,7 +84,7 @@ def sort_best(scores):
 def save_best(list_of_bests):
     for iterator in range(len(list_of_bests)):
         model_file = '{}/{}.pt'.format(cfg.MINDS_DIR, list_of_bests[iterator])
-        temp = Brain().to(device)
+        temp = Brain()
         temp.load_state_dict(torch.load(model_file))
         torch.save(temp.state_dict(), '{}/{}.pt'.format(cfg.MINDS_DIR, iterator))
 
@@ -147,18 +147,29 @@ def mutation(model, generation=0):
 
 def breeding(first_parent, second_parent, file_number, generation=0):
     half_offset = (cfg.POPULATION_SIZE - cfg.PARENTS_SIZE) // cfg.PARENTS_SIZE
-    # (60 - 18 = 42) // 18
 
     for iterator in range(half_offset):
         child = crossing_over(first_parent, second_parent)
         child = mutation(child, generation)
-        torch.save(child.state_dict(), '{}/{}.pt'.format(cfg.MINDS_DIR, file_number))
+
+        child_cpu = Brain()
+        child_cpu.load_state_dict({k: v.cpu() for k, v in child.state_dict().items()})
+        torch.save(child_cpu.state_dict(), '{}/{}.pt'.format(cfg.MINDS_DIR, file_number))
         file_number += 1
+
+        del child, child_cpu
+        torch.cuda.empty_cache()
 
         child = crossing_over(second_parent, first_parent)
         child = mutation(child, generation)
-        torch.save(child.state_dict(), '{}/{}.pt'.format(cfg.MINDS_DIR, file_number))
+
+        child_cpu = Brain()
+        child_cpu.load_state_dict({k: v.cpu() for k, v in child.state_dict().items()})
+        torch.save(child_cpu.state_dict(), '{}/{}.pt'.format(cfg.MINDS_DIR, file_number))
         file_number += 1
+
+        del child, child_cpu
+        torch.cuda.empty_cache()
 
     return file_number
 
@@ -203,7 +214,6 @@ def fitness(ending_board, score, time):
 
     return fitness
 
-# Here's a network that we could potentially use
 class Brain(nn.Module):
     def __init__(self):
         super(Brain, self).__init__()
@@ -245,22 +255,20 @@ class Brain(nn.Module):
                 nn.init.constant_(m.bias, 0)
 
     def activate(self, board, last_board, next_piece):
-        self.to(device)
+        self.cpu()
 
         board = torch.Tensor(board).to(device)
-        last_board = torch.Tensor(last_board).to(device)
-        next_piece = torch.Tensor(next_piece).to(device)
+        last_board = torch.Tensor(last_board)
+        next_piece = torch.Tensor(next_piece)
 
         combined_boards = torch.stack([board.squeeze(), last_board.squeeze()], dim=0)
         input_tensor = combined_boards.view(1, 2, 20, 10)
 
-        conv_result = self.conv(input_tensor)
-        dense_inputs = torch.cat([conv_result.squeeze(), next_piece])
-
-        output = self.dense(dense_inputs).tolist()
+        with torch.no_grad():
+            conv_result = self.conv(input_tensor)
+            dense_inputs = torch.cat([conv_result.squeeze(), next_piece])
+            output = self.dense(dense_inputs).tolist()
         
-        self.cpu()
-
         return output 
 
     def get_weights(self):
