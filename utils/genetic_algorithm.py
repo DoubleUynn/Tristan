@@ -112,7 +112,7 @@ def crossing_over(first_parent, second_parent):
 
 def mutation(model, generation=0):
     if generation < cfg.MUTATION_DECAY_GENERATIONS:
-        progress = generation / cfg.MUTATION_DECAY_GENERATION
+        progress = generation / cfg.MUTATION_DECAY_GENERATIONS
         mutation_rate = cfg.INITIAL_MUTATION_RATE * (1 - progress) + cfg.FINAL_MUTATION_RATE * progress
         mutation_freq = cfg.MUTATION_FREQUENCY * (1 - progress * 0.5)
     else:
