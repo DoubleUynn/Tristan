@@ -7,6 +7,51 @@ import numpy as np
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+def check_initial_diversity():
+    models = []
+    for i in range(cfg.POPULATION_SIZE):
+        model = Brain()
+        model.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{i}.pt', weights_only=True))
+        models.append(model)
+
+    total_diff = []
+    comparisons = 0
+
+    for i in range(len(models)):
+        for j in range(i + 1, len(models)):
+            model_diff = 0
+            param_count = 0
+
+            for (name1, param1), (name2, param2) in zip(models[i].named_parameters(), models[j].named_parameters()):
+                if param1.requires_grad:
+                    diff = torch.mean(torch.abs(param1 - param2)).item()
+                    model_diff += diff
+                    param_count += 1
+
+            avg_model_diff = model_diff / param_count
+            total_differences.append(avg_model_diff)
+            comparisons += 1
+
+    avg_diversity = sum(total_differences) / len(total_differences)
+    min_diversity = min(total_differences)
+    max_diversity = max(total_differences)
+
+    print(f'Population diversity stats:')
+    print(f'    Average differences: {avg_diversity:.6f}')
+    print(f'    Min difference: {min_diversity:.6f}')
+    print(f'    Max difference: {max_diversity:.6f}')
+    print(f'    Total comparisons: {comparisons}')
+
+    # Thresholds
+    if avg_diversity < 0.001:
+        print("CRITICAL: Population has almost no diversity!")
+    elif avg_diversity < 0.01:
+        print("WARNING: Low population diversity.")
+    elif avg_diversity > 0.1:
+        print("INFO: Very high diversity")
+    else:
+        print("Population diversity looks reasonable")
+
 def sort_best(scores):
     return sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:cfg.PARENTS_SIZE]
 
@@ -64,10 +109,16 @@ def mutation(model, generation=0):
                 mutated_param = torch.where(mutation_mask, param * mutation_factor, param)
                 param.data.copy_(mutated_param)
 
+                mutations_made += torch.sum(mutation_mask).item()
+                total_params += param.numel()
+    pratical_mutation_rate = mutations_made / total_params
+    print(f'Mutation rate: {practical_mutation_rate:.3%} ({mutations_made} / {total_params})')
+
     return model
 
 def breeding(first_parent, second_parent, file_number, generation=0):
     half_offset = (cfg.POPULATION_SIZE - cfg.PARENTS_SIZE) // cfg.PARENTS_SIZE
+    # (60 - 18 = 42) // 18
 
     for iterator in range(half_offset):
         child = crossing_over(first_parent, second_parent)
@@ -76,7 +127,7 @@ def breeding(first_parent, second_parent, file_number, generation=0):
         file_number += 1
 
         child = crossing_over(second_parent, first_parent)
-        child = mutation(child)
+        child = mutation(child, generation)
         torch.save(child.state_dict(), '{}/{}.pt'.format(cfg.MINDS_DIR, file_number))
         file_number += 1
 
@@ -115,8 +166,8 @@ def fitness(ending_board, score, time):
 
     # Calculate the fitness score
     fitness = (
-            5 * score -
-            5 * holes - 
+            2 * score -
+            8 * holes - 
             4 * bumpiness # +
             # 0.03 * time
     )
