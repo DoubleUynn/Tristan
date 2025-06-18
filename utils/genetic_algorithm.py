@@ -88,7 +88,6 @@ def save_best(list_of_bests):
         temp.load_state_dict(torch.load(model_file))
         torch.save(temp.state_dict(), '{}/{}.pt'.format(cfg.MINDS_DIR, iterator))
 
-
 def crossing_over(first_parent, second_parent):
     child = Brain().to(device)
     
@@ -112,15 +111,13 @@ def crossing_over(first_parent, second_parent):
     return child
 
 def mutation(model, generation=0):
-    if generation < 100:
-        mutation_freq = cfg.MUTATION_FREQUENCY * 1.5
-        mutation_rate = 400
-    elif generation < 300:
-        mutation_freq = cfg.MUTATION_FREQUENCY
-        mutation_rate = cfg.MUTATION_RATE
+    if generation < cfg.MUTATION_DECAY_GENERATIONS:
+        progress = generation / cfg.MUTATION_DECAY_GENERATION
+        mutation_rate = cfg.INITIAL_MUTATION_RATE * (1 - progress) + cfg.FINAL_MUTATION_RATE * progress
+        mutation_freq = cfg.MUTATION_FREQUENCY * (1 - progress * 0.5)
     else:
-        mutation_freq = cfg.MUTATION_FREQUENCY * 0.7
-        mutation_rate = 30
+        mutation_freq = cfg.FINAL_MUTATION_RATE
+        mutation_rate = cfg.MUTATION_FREQUENCY * 0.5
 
     mutations_made = 0
     total_params = 0
@@ -213,6 +210,27 @@ def mating(generation=0):
         second.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, it + 1)))
         counter = breeding(first, second, counter, generation)
 
+def elitism_mating(generation=0):
+    elite_count = cfg.ELITE_COUNT
+
+    counter = cfg.PARENTS_SIZE
+
+    for it in range(0, cfg.PARENTS_SIZE - 1, 2):
+        if it < elite_count:
+            continue
+
+    first = Brain().to(device)
+    first.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{it}.pt'))
+
+    second_idx = min(it + 1, cfg.PARENTS_SIZE - 1)
+    second = Brain().to(device)
+    second.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{second_idx}.pt'))
+
+    counter = breeding(first, second, counter, generation)
+
+    del first, second
+    torch.cuda.empty_cache()
+
 def fitness(ending_board, score, time):
     board = [ending_board[i * 10:(i + 1) * 10] for i in range(20)]
     heights = [0] * 10
@@ -233,13 +251,27 @@ def fitness(ending_board, score, time):
 
     bumpiness = sum(abs(heights[i] - heights[i + 1]) for i in range(9))
     total_height = sum(heights)
+    almost_lines = 0
+    for y in range(20):
+        filled = sum(1 for x in range(10) if board[y][x] == 1)
+        if filled >= 8:
+            almost_lines += filled - 7
+
+    survival_bonus = min(time, 1000) * 0.1
+
+    flat_segments = 0
+    for i in range(9):
+        if abs(heights[i] - heights[i+1]) <= 1:
+            flat_segments += 1
+    flatness_bonus = flat_segments * 2
 
     # Calculate the fitness score
     fitness = (
             2 * score -
             8 * holes - 
-            4 * bumpiness # +
-            # 0.03 * time
+            4 * bumpiness +
+            survival_bonus +
+            flatness_bonus
     )
 
     return fitness
