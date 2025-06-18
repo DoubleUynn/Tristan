@@ -106,7 +106,7 @@ def fitness(ending_board, score, time):
     fitness = (
             5 * score -
             5 * holes - 
-            5 * bumpiness # +
+            4 * bumpiness # +
             # 0.03 * time
     )
 
