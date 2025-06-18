@@ -114,7 +114,7 @@ def crossing_over(first_parent, second_parent):
 def mutation(model, generation=0):
     if generation < 100:
         mutation_freq = cfg.MUTATION_FREQUENCY * 1.5
-        mutation_rate = 200
+        mutation_rate = 400
     elif generation < 300:
         mutation_freq = cfg.MUTATION_FREQUENCY
         mutation_rate = cfg.MUTATION_RATE
