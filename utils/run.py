@@ -12,7 +12,7 @@ actions = [NES_INPUT_A, NES_INPUT_B, NES_INPUT_DOWN, NES_INPUT_LEFT, NES_INPUT_R
 def run(mind_num, initializer):
     # Each process gets its own NES instance
     nes = initializer()
-    brain = Brain()
+    brain = Brain().to("cpu")
     try:
         # Explicitly specify map_location to ensure model loads to the correct device
         brain.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, mind_num)))
