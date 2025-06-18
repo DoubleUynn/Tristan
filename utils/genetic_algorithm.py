@@ -10,7 +10,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 def check_initial_diversity():
     models = []
     for i in range(cfg.POPULATION_SIZE):
-        model = Brain()
+        model = Brain().to(device)
         model.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{i}.pt' ))
         models.append(model)
 
@@ -57,7 +57,7 @@ def quick_diversity_check():
 
     models = []
     for i in indices:
-        model = Brain()
+        model = Brain().to(device)
         model.load_state_dict(torch.load(f'{cfg.MINDS_DIR}/{i}.pt'))
         models.append(model)
 
@@ -84,7 +84,7 @@ def sort_best(scores):
 def save_best(list_of_bests):
     for iterator in range(len(list_of_bests)):
         model_file = '{}/{}.pt'.format(cfg.MINDS_DIR, list_of_bests[iterator])
-        temp = Brain()
+        temp = Brain().to(device)
         temp.load_state_dict(torch.load(model_file))
         torch.save(temp.state_dict(), '{}/{}.pt'.format(cfg.MINDS_DIR, iterator))
 
@@ -166,9 +166,9 @@ def breeding(first_parent, second_parent, file_number, generation=0):
 def mating(generation=0):
     counter = cfg.PARENTS_SIZE
     for it in range(0, cfg.PARENTS_SIZE, 2):
-        first = Brain()
+        first = Brain().to(device)
         first.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, it)))
-        second = Brain()
+        second = Brain().to(device)
         second.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, it + 1)))
         counter = breeding(first, second, counter, generation)
 
