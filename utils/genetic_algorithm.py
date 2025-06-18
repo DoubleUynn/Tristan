@@ -139,6 +139,7 @@ def mutation(model, generation=0):
 
                 mutations_made += torch.sum(mutation_mask).item()
                 total_params += param.numel()
+
     practical_mutation_rate = mutations_made / total_params
     print(f'Mutation rate: {practical_mutation_rate:.3%} ({mutations_made} / {total_params})')
 
