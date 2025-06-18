@@ -53,7 +53,7 @@ def check_initial_diversity():
         print("Population diversity looks reasonable")
 
 def quick_diversity_check():
-    indices = sample(range(cfg.POPULATION_SIZE), min(10, cfg.POPUALATION_SIZE))
+    indices = sample(range(cfg.POPULATION_SIZE), min(10, cfg.POPULATION_SIZE))
 
     models = []
     for i in indices:
