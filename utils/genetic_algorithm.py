@@ -303,6 +303,9 @@ class Brain(nn.Module):
                 nn.Linear((64 * 4 * 3) + 7, 256),
                 nn.ReLU(inplace=True),
 
+                nn.Linear(256, 128),
+                nn.ReLU(inplace=True),
+
                 nn.Linear(128, 64),
                 nn.ReLU(inplace=True),
 
