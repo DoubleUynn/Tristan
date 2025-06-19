@@ -14,7 +14,6 @@ def run(mind_num, initializer, elite=False):
     nes = initializer()
     brain = Brain().to("cpu")
     try:
-        # Explicitly specify map_location to ensure model loads to the correct device
         if elite:
             brain.load_state_dict(torch.load('{}/{}.pt'.format(cfg.ELITE_DIR, mind_num)))
         else:
