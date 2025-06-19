@@ -9,13 +9,16 @@ import utils.genetic_algorithm as ga
 
 actions = [NES_INPUT_A, NES_INPUT_B, NES_INPUT_DOWN, NES_INPUT_LEFT, NES_INPUT_RIGHT]
 
-def run(mind_num, initializer):
+def run(mind_num, initializer, elite=False):
     # Each process gets its own NES instance
     nes = initializer()
     brain = Brain().to("cpu")
     try:
         # Explicitly specify map_location to ensure model loads to the correct device
-        brain.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, mind_num)))
+        if elite:
+            brain.load_state_dict(torch.load('{}/{}.pt'.format(cfg.ELITE_DIR, mind_num)))
+        else:
+            brain.load_state_dict(torch.load('{}/{}.pt'.format(cfg.MINDS_DIR, mind_num)))
     except Exception as e:
         print(f"Error loading brain {mind_num}: {e}")
         return 0
