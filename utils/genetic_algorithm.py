@@ -276,10 +276,12 @@ def fitness(ending_board, score, time):
 
     # Calculate the fitness score
     fitness = (
-            2 * score -
-            8 * holes - 
-            4 * bumpiness +
+            10.0 * score +
+            -0.5 * total_height +
+            -1.0 * holes +
+            -0.3 * bumpiness +
             survival_bonus +
+            almost_lines +
             flatness_bonus
     )
 
