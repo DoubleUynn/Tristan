@@ -128,10 +128,6 @@ def mutation(model, generation=0):
                 mutation_mask = mutation_prob <= cfg.MUTATION_FREQUENCY
 
                 noise = torch.randn_like(param,device=device) * mutation_rate
-
-                mutation_changes = torch.randint(-cfg.MUTATION_RATE, cfg.MUTATION_RATE + 1, param.shape, device=device, dtype=torch.float)
-                mutation_factor = 1.0 + (mutation_changes / 1000)
-                
                 mutated_param = torch.where(mutation_mask, param.data * noise, param.data)
                 param.data.copy_(mutated_param)
 
