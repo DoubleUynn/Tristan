@@ -115,10 +115,8 @@ def mutation(model, generation=0):
     if generation < cfg.MUTATION_DECAY_GENERATIONS:
         progress = generation / cfg.MUTATION_DECAY_GENERATIONS
         mutation_rate = cfg.INITIAL_MUTATION_RATE * (1 - progress) + cfg.FINAL_MUTATION_RATE * progress
-        mutation_freq = cfg.MUTATION_FREQUENCY * (1 - progress * 0.5)
     else:
         mutation_freq = cfg.FINAL_MUTATION_RATE
-        mutation_rate = cfg.MUTATION_FREQUENCY * 0.5
 
     mutations_made = 0
     total_params = 0
@@ -134,7 +132,7 @@ def mutation(model, generation=0):
                 mutation_changes = torch.randint(-cfg.MUTATION_RATE, cfg.MUTATION_RATE + 1, param.shape, device=device, dtype=torch.float)
                 mutation_factor = 1.0 + (mutation_changes / 1000)
                 
-                mutated_param = torch.where(mutation_mask, param.data * mutation_factor, param.data)
+                mutated_param = torch.where(mutation_mask, param.data * noise, param.data)
                 param.data.copy_(mutated_param)
 
                 mutations_made += torch.sum(mutation_mask).item()
